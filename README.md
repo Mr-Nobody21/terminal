@@ -74,7 +74,7 @@ The DMG is in `release/tauri/`; the app is under `packages/desktop/target/aarch6
 
 ## Windows and Linux desktop packaging
 
-Run `npm run build:windows` on Windows x64 for EXE/MSI installers, or `npm run build:linux` on Linux x64 for AppImage/DEB packages. `npm run build:desktop` selects the native platform. A Windows/Linux GitHub Actions workflow for the implementation branch is ready; its installers have not yet been built on native runners. See [desktop builds](docs/platforms/desktop-builds.md) for prerequisites, output paths and verification status.
+Run `npm run build:windows` on Windows x64 for EXE/MSI installers, or `npm run build:linux` on Linux x64 for AppImage/DEB packages. `npm run build:desktop` selects the native platform. Windows/Linux builds and native smoke tests passed in [GitHub Actions](https://github.com/Mr-Nobody21/terminal/actions/runs/37518425062); the downloaded installers are in `release/tauri/windows` and `release/tauri/linux`. See [desktop builds](docs/platforms/desktop-builds.md) for prerequisites, output paths and verification status.
 
 Code organization is documented in [Codebase structure](docs/architecture/codebase-structure.md).
 

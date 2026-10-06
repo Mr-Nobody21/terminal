@@ -1,6 +1,6 @@
 # Known issues and verification limits
 
-- Windows/Linux installer configurations and CI are prepared, but native builds and installed-package checks remain unexecuted. Remote execution remains pending the prior authorization.
+- Windows/Linux release builds and native smoke tests now pass. Interactive installed-package startup/save-dialog checks still require a manual desktop check.
 - Representative editable Draw.io import and SVG import into Microsoft Visio still require manual verification in those applications.
 - Installed native save-dialog interaction remains a manual check; bridge/error behavior is covered automatically.
 - The macOS package uses ad-hoc signing and is not notarized. No production signing credentials are configured.

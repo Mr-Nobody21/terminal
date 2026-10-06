@@ -6,4 +6,4 @@ The prepared [desktop workflow](../.github/workflows/desktop-build.yml) uses Win
 
 Windows requires Visual Studio C++ tooling, SDK/WebView2; MSI needs the VBScript optional feature. Linux dependencies are listed in the workflow. macOS needs Xcode command-line tools. [Desktop build guidance](../docs/platforms/desktop-builds.md) records verification status.
 
-No runner was provisioned, remote push performed or CI job started as part of this restructuring.
+The subsequent user request to finish builds authorized the implementation-branch push and native runner execution. Both jobs passed in [the verified run](https://github.com/Mr-Nobody21/terminal/actions/runs/37518425062). No hosted application infrastructure, production deployment or release publishing was added.

@@ -1,6 +1,6 @@
 # Backlog
 
-- Run prepared Windows/Linux builds on authorized native runners and validate installers.
+- Complete interactive installed-package checks on Windows/Linux; release builds and native smoke tests are complete.
 - Verify representative editable Draw.io imports and SVG imports into Visio manually.
 - Exercise native save dialogs in installed packages.
 - Review bundle size when application features change; existing ELK/report chunks are large.

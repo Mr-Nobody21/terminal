@@ -8,7 +8,7 @@ The same Tauri/Rust application can now be packaged for Windows x64 and Linux x6
 | Linux x64 | `npm run build:linux` | `.AppImage`, `.deb` | `release/tauri/linux/` |
 | Apple Silicon Mac | `npm run build:mac` | `.app`, `.dmg` | DMG in `release/tauri/` |
 
-`npm run build:desktop` chooses the matching native profile. The Windows/Linux commands intentionally fail on macOS before downloading or compiling incompatible toolchains. [Tauri recommends native runners](https://v2.tauri.app/distribute/pipelines/github/); its Windows MSI packaging requires Windows, and [NSIS cross-compilation has caveats](https://v2.tauri.app/distribute/windows-installer/). No Windows or Linux VM/container runtime is installed on this Mac, so those installers have not yet been generated or executed here.
+`npm run build:desktop` chooses the matching native profile. The Windows/Linux commands intentionally fail on macOS before downloading or compiling incompatible toolchains. [Tauri recommends native runners](https://v2.tauri.app/distribute/pipelines/github/); its Windows MSI packaging requires Windows, and [NSIS cross-compilation has caveats](https://v2.tauri.app/distribute/windows-installer/). The Windows/Linux installers were generated and native-smoke-tested on GitHub runners; this Mac does not host Windows/Linux VMs.
 
 ## Native prerequisites
 
@@ -31,12 +31,12 @@ On Linux, the application uses system WebKitGTK/GTK. The DEB declares native pac
 
 [`.github/workflows/desktop-build.yml`](../../.github/workflows/desktop-build.yml) runs on relevant pushes to `feat/next-implementation`, with an additional manual trigger after the workflow exists on the default branch. It runs on Windows Server 2022 and Ubuntu 22.04 x64. It checks lint, unit tests, build-script tests, browser E2E and native smoke tests, then generates installers with the locked Cargo dependencies. Linux native tests use Xvfb with Openbox and software rendering. Normal release builds omit native-smoke test hooks.
 
-An approved push of these changes starts both native jobs without merging into `main`. Inspect and download the run with:
+The authorized implementation-branch push completed both jobs in [the verified run](https://github.com/Mr-Nobody21/terminal/actions/runs/37518425062) without merging into `main`. Inspect and download that run with:
 
 ```bash
 gh run list --workflow desktop-build.yml
-gh run watch RUN_ID
-gh run download RUN_ID --dir release/ci
+gh run watch 37518425062
+gh run download 37518425062 --dir release/ci
 ```
 
 The two downloadable run artifacts are `cloud-architecture-planner-windows-x64` and `cloud-architecture-planner-linux-x64`, retained for seven days. No GitHub Release, tag, deployment or updater is created. The workflow uses read-only repository permissions. Build outputs are ignored by Git.
@@ -59,6 +59,8 @@ npm run test:desktop
 
 The native smoke suite checks two launches, persisted project edits, icons/diagram, absence of Node globals, and JSON/PNG/ZIP export contents. Windows/Linux use a temporary WebView data directory; macOS uses a separate test bundle identifier. Native save-panel interaction and installed-package startup still need a manual check on each new platform.
 
-Next step: approved push/workflow execution to build and validate Windows/Linux installers, then download the actual artifacts and report the runner results. This local preparation does not imply that Windows/Linux compilation or installer compatibility has already passed.
+Build completion: source `5149c00` produced Windows EXE/MSI and Linux AppImage/DEB packages in [the successful workflow](https://github.com/Mr-Nobody21/terminal/actions/runs/37518425062). Both native suites passed two launches with persisted edits, icons, fullscreen and JSON/PNG/ZIP verification. The Mac app/DMG also rebuilt locally and passed signature/disk-image checks.
 
-Local verification passed: lint, 59 Vitest cases, strict TypeScript/static build, 3 packaging tests, 4 Rust tests, all 7 browser E2E cases, two Mac native smoke launches with persistence and JSON/PNG/ZIP checks, Rustfmt, Clippy with warnings denied, actionlint and `git diff --check`. Windows/Linux native build and installer verification remain pending approved runner execution.
+The initial Windows job exposed a missing platform overlay in direct Cargo tests. The launcher now passes the host configuration through `TAURI_CONFIG`; the regression is covered by the ninth packaging test. Full rerun checks passed: lint, 77 unit cases, 13 browser scenarios, 9 packaging checks, 4 Rust cases per OS, native smoke and installer generation. Downloaded artifacts and SHA-256 records are available under `release/tauri`.
+
+Remaining checks concern interactive installed-package/save-dialog flows, signing if requested, and manual diagram importer compatibility. No GitHub Release, updater, hosted backend or deployment was added.
