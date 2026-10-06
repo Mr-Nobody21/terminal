@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, copyFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, copyFileSync, readFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 
 export function packageArgs(name, platform = process.platform, arch = process.arch) {
@@ -36,4 +36,10 @@ export function platformConfig(platform = process.platform) {
   const app = { darwin: 'mac', win32: 'windows', linux: 'linux' }[platform];
   if (!app) throw Error(`Unsupported desktop host: ${platform}`);
   return `apps/${app}/config/tauri.conf.json`;
+}
+
+/** Direct Cargo tests need the same overlay that the Tauri CLI passes to builds. */
+export function cargoTestEnvironment(platform = process.platform) {
+  const overlay = new URL(`../../../${platformConfig(platform)}`, import.meta.url);
+  return { TAURI_CONFIG: readFileSync(overlay, 'utf8') };
 }

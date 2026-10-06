@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { resolve, delimiter } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { packageArgs, collectInstallers, platformConfig } from '../packaging/desktop-build.mjs';
+import { packageArgs, collectInstallers, platformConfig, cargoTestEnvironment } from '../packaging/desktop-build.mjs';
 
 // Derive paths from this file so workspace scripts work from any app directory.
 const root = fileURLToPath(new URL('../../../', import.meta.url));
@@ -13,8 +13,8 @@ if (existsSync(resolve(root, `.runtime/cargo/bin/cargo${process.platform === 'wi
   env.RUSTUP_HOME = resolve(root, '.runtime/rustup');
   env.PATH = `${resolve(root, '.runtime/cargo/bin')}${delimiter}${env.PATH}`;
 }
-const run = (command, args) => {
-  const result = spawnSync(command, args, { env, cwd: root, stdio: 'inherit' });
+const run = (command, args, extraEnv = {}) => {
+  const result = spawnSync(command, args, { env: { ...env, ...extraEnv }, cwd: root, stdio: 'inherit' });
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status ?? 1);
 };
@@ -24,7 +24,7 @@ if (args[0] === 'package') {
   catch (error) { console.error(error.message); process.exit(1); }
 }
 if (args[0] === 'test' || args[0] === 'rust-test') {
-  run('cargo', ['test', '--manifest-path', resolve(desktop, 'Cargo.toml')]);
+  run('cargo', ['test', '--manifest-path', resolve(desktop, 'Cargo.toml')], cargoTestEnvironment());
   if (args[0] === 'test') run(process.execPath, [resolve(root, 'tooling/scripts/testing/native-smoke.mjs')]);
 } else {
   if (args[0] === 'build' || args[0] === 'dev') {

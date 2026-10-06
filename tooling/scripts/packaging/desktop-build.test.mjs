@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { packageArgs, collectInstallers } from './desktop-build.mjs';
+import { packageArgs, collectInstallers, cargoTestEnvironment } from './desktop-build.mjs';
 
 test('Windows and Linux use matching native x64 toolchains and locked dependencies', () => {
   assert.deepEqual(packageArgs('windows', 'win32', 'x64'), ['build', '--bundles', 'nsis,msi', '--target', 'x86_64-pc-windows-msvc', '--', '--locked']);
@@ -56,4 +56,13 @@ test('workspace manifests expose real source entries and declare dependency dire
     }
     if (name === 'adapters') assert.ok(!manifest.dependencies['@planner/ui']);
   }
+});
+
+test('direct Windows Cargo tests receive an existing ICO instead of the shared PNG fallback', () => {
+  const environment = cargoTestEnvironment('win32');
+  const overlay = JSON.parse(environment.TAURI_CONFIG);
+  const icon = overlay.bundle.icon.find(path => path.endsWith('.ico'));
+  assert.ok(icon, 'tauri-build requires an ICO for Windows resources');
+  assert.ok(readFileSync(new URL(`../../../packages/desktop/${icon}`, import.meta.url)).length > 0);
+  assert.deepEqual(overlay.bundle.targets, ['nsis', 'msi']);
 });
