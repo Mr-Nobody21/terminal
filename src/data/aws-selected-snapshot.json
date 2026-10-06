@@ -1,0 +1,363 @@
+{
+  "retrieved": "2026-10-06",
+  "items": {
+    "AmazonS3": {
+      "publicationDate": "2026-09-28T23:04:16Z",
+      "version": "20260928230416",
+      "products": {
+        "WP9ANXZGBYYSGJEA": {
+          "sku": "WP9ANXZGBYYSGJEA",
+          "productFamily": "Storage",
+          "attributes": {
+            "servicecode": "AmazonS3",
+            "location": "US East (N. Virginia)",
+            "locationType": "AWS Region",
+            "availability": "99.99%",
+            "storageClass": "General Purpose",
+            "volumeType": "Standard",
+            "usagetype": "TimedStorage-ByteHrs",
+            "operation": "",
+            "durability": "99.999999999%",
+            "regionCode": "us-east-1",
+            "servicename": "Amazon Simple Storage Service"
+          }
+        }
+      },
+      "terms": {
+        "WP9ANXZGBYYSGJEA": {
+          "WP9ANXZGBYYSGJEA.JRTCKXETXF": {
+            "offerTermCode": "JRTCKXETXF",
+            "sku": "WP9ANXZGBYYSGJEA",
+            "effectiveDate": "2026-09-01T00:00:00Z",
+            "priceDimensions": {
+              "WP9ANXZGBYYSGJEA.JRTCKXETXF.PGHJ3S3EYE": {
+                "rateCode": "WP9ANXZGBYYSGJEA.JRTCKXETXF.PGHJ3S3EYE",
+                "description": "$0.023 per GB - first 50 TB / month of storage used",
+                "beginRange": "0",
+                "endRange": "51200",
+                "unit": "GB-Mo",
+                "pricePerUnit": {
+                  "USD": "0.0230000000"
+                },
+                "appliesTo": []
+              },
+              "WP9ANXZGBYYSGJEA.JRTCKXETXF.D42MF2PVJS": {
+                "rateCode": "WP9ANXZGBYYSGJEA.JRTCKXETXF.D42MF2PVJS",
+                "description": "$0.022 per GB - next 450 TB / month of storage used",
+                "beginRange": "51200",
+                "endRange": "512000",
+                "unit": "GB-Mo",
+                "pricePerUnit": {
+                  "USD": "0.0220000000"
+                },
+                "appliesTo": []
+              },
+              "WP9ANXZGBYYSGJEA.JRTCKXETXF.PXJDJ3YRG3": {
+                "rateCode": "WP9ANXZGBYYSGJEA.JRTCKXETXF.PXJDJ3YRG3",
+                "description": "$0.021 per GB - storage used / month over 500 TB",
+                "beginRange": "512000",
+                "endRange": "Inf",
+                "unit": "GB-Mo",
+                "pricePerUnit": {
+                  "USD": "0.0210000000"
+                },
+                "appliesTo": []
+              }
+            },
+            "termAttributes": {}
+          }
+        }
+      }
+    },
+    "AmazonRDS": {
+      "publicationDate": "2026-10-06T02:47:42Z",
+      "version": "20261006024742",
+      "products": {
+        "9HPEGXQTDDGH53C9": {
+          "sku": "9HPEGXQTDDGH53C9",
+          "productFamily": "Database Instance",
+          "attributes": {
+            "servicecode": "AmazonRDS",
+            "location": "US East (N. Virginia)",
+            "locationType": "AWS Region",
+            "instanceType": "db.t4g.micro",
+            "currentGeneration": "Yes",
+            "instanceFamily": "General purpose",
+            "vcpu": "2",
+            "physicalProcessor": "AWS Graviton2",
+            "memory": "1 GiB",
+            "storage": "EBS Only",
+            "networkPerformance": "Up to 5 Gigabit",
+            "processorArchitecture": "64-bit",
+            "engineCode": "14",
+            "databaseEngine": "PostgreSQL",
+            "licenseModel": "No license required",
+            "deploymentOption": "Single-AZ",
+            "usagetype": "InstanceUsage:db.t4g.micro",
+            "operation": "CreateDBInstance:0014",
+            "instanceTypeFamily": "T4G",
+            "normalizationSizeFactor": "0.5",
+            "regionCode": "us-east-1",
+            "servicename": "Amazon Relational Database Service",
+            "unbundledLicensing": "FALSE"
+          }
+        },
+        "G2TQUMAQNSQ7H65X": {
+          "sku": "G2TQUMAQNSQ7H65X",
+          "productFamily": "Database Storage",
+          "attributes": {
+            "servicecode": "AmazonRDS",
+            "location": "US East (N. Virginia)",
+            "locationType": "AWS Region",
+            "storageMedia": "SSD",
+            "volumeType": "General Purpose",
+            "minVolumeSize": "5 GB",
+            "maxVolumeSize": "16 TB",
+            "engineCode": "14",
+            "databaseEngine": "PostgreSQL",
+            "deploymentOption": "Single-AZ",
+            "usagetype": "RDS:GP2-Storage",
+            "operation": "CreateDBInstance:0014",
+            "regionCode": "us-east-1",
+            "servicename": "Amazon Relational Database Service"
+          }
+        }
+      },
+      "terms": {
+        "9HPEGXQTDDGH53C9": {
+          "9HPEGXQTDDGH53C9.JRTCKXETXF": {
+            "offerTermCode": "JRTCKXETXF",
+            "sku": "9HPEGXQTDDGH53C9",
+            "effectiveDate": "2026-10-01T00:00:00Z",
+            "priceDimensions": {
+              "9HPEGXQTDDGH53C9.JRTCKXETXF.6YS6EN2CT7": {
+                "rateCode": "9HPEGXQTDDGH53C9.JRTCKXETXF.6YS6EN2CT7",
+                "description": "$ 0.016 per RDS db.t4g.micro Single-AZ instance hour (or partial hour) running PostgreSQL",
+                "beginRange": "0",
+                "endRange": "Inf",
+                "unit": "Hrs",
+                "pricePerUnit": {
+                  "USD": "0.0160000000"
+                },
+                "appliesTo": []
+              }
+            },
+            "termAttributes": {}
+          }
+        },
+        "G2TQUMAQNSQ7H65X": {
+          "G2TQUMAQNSQ7H65X.JRTCKXETXF": {
+            "offerTermCode": "JRTCKXETXF",
+            "sku": "G2TQUMAQNSQ7H65X",
+            "effectiveDate": "2026-10-01T00:00:00Z",
+            "priceDimensions": {
+              "G2TQUMAQNSQ7H65X.JRTCKXETXF.6YS6EN2CT7": {
+                "rateCode": "G2TQUMAQNSQ7H65X.JRTCKXETXF.6YS6EN2CT7",
+                "description": "$0.115 per GB-month of provisioned gp2 storage running PostgreSQL",
+                "beginRange": "0",
+                "endRange": "Inf",
+                "unit": "GB-Mo",
+                "pricePerUnit": {
+                  "USD": "0.1150000000"
+                },
+                "appliesTo": []
+              }
+            },
+            "termAttributes": {}
+          }
+        }
+      }
+    },
+    "cloudfront-global": {
+      "publicationDate": "2026-10-03T00:04:26Z",
+      "version": "20261003000426",
+      "products": {
+        "GV2WFGX37Q9PDSHF": {
+          "sku": "GV2WFGX37Q9PDSHF",
+          "productFamily": "Data Transfer",
+          "attributes": {
+            "servicecode": "AmazonCloudFront",
+            "transferType": "CloudFront Outbound",
+            "fromLocation": "United States",
+            "fromLocationType": "AWS Edge Location",
+            "toLocation": "External",
+            "toLocationType": "Other",
+            "usagetype": "US-DataTransfer-Out-Bytes",
+            "operation": "",
+            "fromRegionCode": "",
+            "servicename": "Amazon CloudFront",
+            "toRegionCode": ""
+          }
+        }
+      },
+      "terms": {
+        "GV2WFGX37Q9PDSHF": {
+          "GV2WFGX37Q9PDSHF.JRTCKXETXF": {
+            "offerTermCode": "JRTCKXETXF",
+            "sku": "GV2WFGX37Q9PDSHF",
+            "effectiveDate": "2026-10-01T00:00:00Z",
+            "priceDimensions": {
+              "GV2WFGX37Q9PDSHF.JRTCKXETXF.Q3Z75P77EN": {
+                "rateCode": "GV2WFGX37Q9PDSHF.JRTCKXETXF.Q3Z75P77EN",
+                "description": "$0.085 per GB - first 10 TB / month data transfer out",
+                "beginRange": "0",
+                "endRange": "10240",
+                "unit": "GB",
+                "pricePerUnit": {
+                  "USD": "0.0850000000"
+                },
+                "appliesTo": []
+              },
+              "GV2WFGX37Q9PDSHF.JRTCKXETXF.VF6T3GAUKQ": {
+                "rateCode": "GV2WFGX37Q9PDSHF.JRTCKXETXF.VF6T3GAUKQ",
+                "description": "$0.080 per GB - next 40 TB / month data transfer out",
+                "beginRange": "10240",
+                "endRange": "51200",
+                "unit": "GB",
+                "pricePerUnit": {
+                  "USD": "0.0800000000"
+                },
+                "appliesTo": []
+              },
+              "GV2WFGX37Q9PDSHF.JRTCKXETXF.N9EW5UVVPA": {
+                "rateCode": "GV2WFGX37Q9PDSHF.JRTCKXETXF.N9EW5UVVPA",
+                "description": "$0.060 per GB - next 100 TB / month data transfer out",
+                "beginRange": "51200",
+                "endRange": "153600",
+                "unit": "GB",
+                "pricePerUnit": {
+                  "USD": "0.0600000000"
+                },
+                "appliesTo": []
+              },
+              "GV2WFGX37Q9PDSHF.JRTCKXETXF.AZ7GJS7NVF": {
+                "rateCode": "GV2WFGX37Q9PDSHF.JRTCKXETXF.AZ7GJS7NVF",
+                "description": "$0.040 per GB - next 350 TB / month data transfer out",
+                "beginRange": "153600",
+                "endRange": "512000",
+                "unit": "GB",
+                "pricePerUnit": {
+                  "USD": "0.0400000000"
+                },
+                "appliesTo": []
+              },
+              "GV2WFGX37Q9PDSHF.JRTCKXETXF.3B9CK5AZ6J": {
+                "rateCode": "GV2WFGX37Q9PDSHF.JRTCKXETXF.3B9CK5AZ6J",
+                "description": "$0.030 per GB - next 524 TB / month data transfer out",
+                "beginRange": "512000",
+                "endRange": "1048576",
+                "unit": "GB",
+                "pricePerUnit": {
+                  "USD": "0.0300000000"
+                },
+                "appliesTo": []
+              },
+              "GV2WFGX37Q9PDSHF.JRTCKXETXF.RBMR72YW69": {
+                "rateCode": "GV2WFGX37Q9PDSHF.JRTCKXETXF.RBMR72YW69",
+                "description": "$0.025 per GB - next 4 PB / month data transfer out",
+                "beginRange": "1048576",
+                "endRange": "5242880",
+                "unit": "GB",
+                "pricePerUnit": {
+                  "USD": "0.0250000000"
+                },
+                "appliesTo": []
+              },
+              "GV2WFGX37Q9PDSHF.JRTCKXETXF.SW9U2ZKBYX": {
+                "rateCode": "GV2WFGX37Q9PDSHF.JRTCKXETXF.SW9U2ZKBYX",
+                "description": "$0.020 per GB - data transfer out / month over 5 PB",
+                "beginRange": "5242880",
+                "endRange": "Inf",
+                "unit": "GB",
+                "pricePerUnit": {
+                  "USD": "0.0200000000"
+                },
+                "appliesTo": []
+              }
+            },
+            "termAttributes": {}
+          }
+        }
+      }
+    },
+    "aws-transfer": {
+      "publicationDate": "2026-09-16T13:22:08Z",
+      "version": "20260916132208",
+      "products": {
+        "HQEH3ZWJVT46JHRG": {
+          "sku": "HQEH3ZWJVT46JHRG",
+          "productFamily": "Data Transfer",
+          "attributes": {
+            "servicecode": "AWSDataTransfer",
+            "transferType": "AWS Outbound",
+            "fromLocation": "US East (N. Virginia)",
+            "fromLocationType": "AWS Region",
+            "toLocation": "External",
+            "toLocationType": "Other",
+            "usagetype": "DataTransfer-Out-Bytes",
+            "operation": "",
+            "fromRegionCode": "us-east-1",
+            "servicename": "AWS Data Transfer",
+            "toRegionCode": ""
+          }
+        }
+      },
+      "terms": {
+        "HQEH3ZWJVT46JHRG": {
+          "HQEH3ZWJVT46JHRG.JRTCKXETXF": {
+            "offerTermCode": "JRTCKXETXF",
+            "sku": "HQEH3ZWJVT46JHRG",
+            "effectiveDate": "2026-06-01T00:00:00Z",
+            "priceDimensions": {
+              "HQEH3ZWJVT46JHRG.JRTCKXETXF.Q3Z75P77EN": {
+                "rateCode": "HQEH3ZWJVT46JHRG.JRTCKXETXF.Q3Z75P77EN",
+                "description": "$0.090 per GB - first 10 TB / month data transfer out beyond the global free tier",
+                "beginRange": "0",
+                "endRange": "10240",
+                "unit": "GB",
+                "pricePerUnit": {
+                  "USD": "0.0900000000"
+                },
+                "appliesTo": []
+              },
+              "HQEH3ZWJVT46JHRG.JRTCKXETXF.VF6T3GAUKQ": {
+                "rateCode": "HQEH3ZWJVT46JHRG.JRTCKXETXF.VF6T3GAUKQ",
+                "description": "$0.085 per GB - next 40 TB / month data transfer out",
+                "beginRange": "10240",
+                "endRange": "51200",
+                "unit": "GB",
+                "pricePerUnit": {
+                  "USD": "0.0850000000"
+                },
+                "appliesTo": []
+              },
+              "HQEH3ZWJVT46JHRG.JRTCKXETXF.N9EW5UVVPA": {
+                "rateCode": "HQEH3ZWJVT46JHRG.JRTCKXETXF.N9EW5UVVPA",
+                "description": "$0.070 per GB - next 100 TB / month data transfer out",
+                "beginRange": "51200",
+                "endRange": "153600",
+                "unit": "GB",
+                "pricePerUnit": {
+                  "USD": "0.0700000000"
+                },
+                "appliesTo": []
+              },
+              "HQEH3ZWJVT46JHRG.JRTCKXETXF.GPHXDESFBB": {
+                "rateCode": "HQEH3ZWJVT46JHRG.JRTCKXETXF.GPHXDESFBB",
+                "description": "$0.050 per GB - greater than 150 TB / month data transfer out",
+                "beginRange": "153600",
+                "endRange": "Inf",
+                "unit": "GB",
+                "pricePerUnit": {
+                  "USD": "0.0500000000"
+                },
+                "appliesTo": []
+              }
+            },
+            "termAttributes": {}
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+import { activeVariant, commit, deleteResource, newId, type Project, type Resource } from '../../core/model';
+import { services, serviceFor,capacityUnit } from '../../core/providers';
+const units: Record<string, string> = { hours: 'hours/month', quantity: 'count', cpu: 'vCPU', memory: 'GiB', storage: 'GiB-month', egress: 'GiB/month', requests: 'requests/month', duration: 'seconds', capacity: 'LCU-hours', rules: 'rules', processed: 'GB/month' };
+export function Inspector({ project, selectedId, onChange, onSelect }: {
+    project: Project;
+    selectedId?: string;
+    onChange: (p: Project) => void;
+    onSelect: (id: string | undefined) => void;
+}) {
+    const v = activeVariant(project), resource = v.resources.find(r => r.id === selectedId), connection = v.connections.find(c => c.id === selectedId), boundary = v.boundaries.find(b => b.id === selectedId);
+    if (!resource && !connection && !boundary)
+        return <div className="inspector empty">Select a service, connector, or boundary to edit it.</div>;
+    if (connection)
+        return <div className="inspector"><h3>Connection</h3><label>Label<input value={connection.label} onChange={e => onChange(commit(project, d => { activeVariant(d).connections.find(c => c.id === selectedId)!.label = e.target.value; }))}/></label><button className="danger" onClick={() => { onChange(commit(project, d => { activeVariant(d).connections = activeVariant(d).connections.filter(c => c.id !== selectedId); })); onSelect(undefined); }}>Delete connection</button></div>;
+    if (boundary)
+        return <div className="inspector"><h3>Boundary</h3><label>Name<input value={boundary.name} onChange={e => { if (e.target.value)
+            onChange(commit(project, d => { activeVariant(d).boundaries.find(b => b.id === selectedId)!.name = e.target.value; })); }}/></label><label>Kind<select value={boundary.kind} onChange={e => onChange(commit(project, d => { activeVariant(d).boundaries.find(b => b.id === selectedId)!.kind = e.target.value as typeof boundary.kind; }))}>{['provider', 'region', 'network', 'subnet'].map(k => <option key={k}>{k}</option>)}</select></label><label>Parent<select value={boundary.parentId ?? ''} onChange={e => onChange(commit(project, d => { activeVariant(d).boundaries.find(b => b.id === selectedId)!.parentId = e.target.value || undefined; }))}><option value="">None</option>{v.boundaries.filter(b => { let candidate: typeof b | undefined = b; const seen = new Set<string>(); while (candidate) {
+            if (candidate.id === boundary.id || seen.has(candidate.id))
+                return false;
+            seen.add(candidate.id);
+            candidate = v.boundaries.find(x => x.id === candidate!.parentId);
+        } return true; }).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></label><button className="danger" onClick={() => { onChange(commit(project, d => { const a = activeVariant(d); a.resources.forEach(r => { if (r.boundaryId === boundary.id)
+            r.boundaryId = boundary.parentId; }); a.boundaries.forEach(b => { if (b.parentId === boundary.id)
+            b.parentId = boundary.parentId; }); a.boundaries = a.boundaries.filter(b => b.id !== boundary.id); delete d.presentation.positions[boundary.id]; })); onSelect(undefined); }}>Delete boundary</button></div>;
+    if (!resource)
+        return null;
+    const fields:Record<string,string[]>={compute:['hours','quantity','egress'],container:['hours','quantity','cpu','memory','egress'],serverless:['requests','duration','memory','egress'],database:['hours','quantity','storage','egress'],storage:['storage','egress'],cdn:['egress'],network:['hours','quantity','capacity','egress']};
+    const fieldKeys=fields[resource.category]??['hours','quantity'];
+    const inputUnit=(key:string)=>key==='capacity'?capacityUnit(resource.provider):units[key];
+    const edit = (fn: (r: Resource) => void) => onChange(commit(project, d => fn(activeVariant(d).resources.find(r => r.id === resource.id)!)));
+    const input = (key: string, value: number) => onChange(commit(project, d => { const r = activeVariant(d).resources.find(r => r.id === resource.id)!; const previous = r.configuration.inputs[key]; const existing = d.assumptions.find(a => a.id === previous?.source.id && a.label === `${resource.name}: ${key}`); const a = existing ?? { id: newId(), label: `${resource.name}: ${key}`, value: String(value), unit: inputUnit(key), source: 'user' as const, critical: false }; a.value = String(value); if (!existing)
+        d.assumptions.push(a); r.configuration.inputs[key] = { value, unit: inputUnit(key), source: { kind: 'assumption', id: a.id } }; }));
+    return <div className="inspector"><h3>Service configuration</h3><label>Name<input value={resource.name} onChange={e => { if (e.target.value)
+        edit(r => { r.name = e.target.value; }); }}/></label><label>Service<select value={resource.unsupported ? 'unsupported' : resource.service} onChange={e => edit(r => { const svc = serviceFor(project.provider, e.target.value)!; r.service = svc.id; r.category = svc.category; r.unsupported = false; r.configuration.sku = 'standard'; })}>{resource.unsupported && <option value="unsupported">Unsupported: {resource.service}</option>}{services.filter(s => s.provider === project.provider).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label><label>Environment<input value={resource.environment} onChange={e => { if (e.target.value)
+        edit(r => { r.environment = e.target.value; }); }}/></label><label>Boundary<select value={resource.boundaryId ?? ''} onChange={e => edit(r => { r.boundaryId = e.target.value || undefined; })}><option value="">None</option>{v.boundaries.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}</select></label><label>Pricing SKU<input value={resource.configuration.sku} onChange={e => edit(r => { r.configuration.sku = e.target.value; })}/></label><p className="hint">Choose a supported SKU from the cost detail. Missing rates remain unpriced.</p><details open><summary>Monthly workload inputs</summary>{fieldKeys.map(key => <label className="numeric-label" key={key}>{key} <small>{inputUnit(key)}</small><input aria-label={`${key} input`} type="number" min="0" step="any" value={resource.configuration.inputs[key]?.value ?? ''} onChange={e => { const value = Number(e.target.value); if (e.target.value !== '' && Number.isFinite(value) && value >= 0)
+        input(key, value); }}/></label>)}</details><fieldset><legend>Explicit workload range</legend><label>Low multiplier<input type="number" min="0" max="1" step="0.1" value={resource.configuration.scenarios?.low ?? 1} onChange={e => { const value = Number(e.target.value); if (value >= 0 && value <= 1)
+        edit(r => { r.configuration.scenarios = { low: value, high: r.configuration.scenarios?.high ?? 1 }; }); }}/></label><label>High multiplier<input type="number" min="1" step="0.1" value={resource.configuration.scenarios?.high ?? 1} onChange={e => { const value = Number(e.target.value); if (value >= 1)
+        edit(r => { r.configuration.scenarios = { low: r.configuration.scenarios?.low ?? 1, high: value }; }); }}/></label></fieldset><button className="danger" onClick={() => { onChange(deleteResource(project, resource.id)); onSelect(undefined); }}>Delete resource</button></div>;
+}
