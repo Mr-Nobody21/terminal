@@ -1,0 +1,9 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main",
+  "description": "Local planner window; native exports through a user-selected save path and fullscreen controls for the invoking window.",
+  "windows": [
+    "main"
+  ],
+  "permissions": []
+}

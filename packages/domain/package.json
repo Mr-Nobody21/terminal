@@ -1,0 +1,19 @@
+{
+  "name": "@planner/domain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./model": "./src/model/index.ts",
+    "./providers": "./src/providers/index.ts",
+    "./examples": "./src/examples/index.ts",
+    "./pricing": "./src/pricing/index.ts",
+    "./pricing/catalog": "./src/pricing/catalog.ts",
+    "./diagram/layout": "./src/diagram/layout.ts",
+    "./commands": "./src/commands/project.ts"
+  },
+  "dependencies": {
+    "zod": "^4.1.11",
+    "elkjs": "^0.10.0"
+  }
+}

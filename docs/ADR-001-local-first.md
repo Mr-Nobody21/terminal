@@ -1,5 +1,3 @@
-# ADR 001: Local-first MVP
+# Guidance location
 
-Reconstructed guidance from IMPLEMENTATION_PLAN.md; original guidance was absent.
-
-The application is a static browser application. IndexedDB stores validated projects. There is no backend, authentication, cloud storage, or proxy. AI calls occur directly from the browser on explicit submission; credentials stay in memory. JSON exports provide portable recovery. Save failures must preserve the in-memory project.
+This document moved to [ADR-001-local-first.md](architecture/decisions/ADR-001-local-first.md). Read that file for the complete guidance.

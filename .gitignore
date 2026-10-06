@@ -4,3 +4,7 @@ dist/
 playwright-report/
 test-results/
 *.tsbuildinfo
+desktop-dist/
+release/
+packages/desktop/target/
+packages/desktop/gen/

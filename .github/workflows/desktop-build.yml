@@ -1,0 +1,77 @@
+name: Desktop installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/next-implementation]
+    paths:
+      - '.github/workflows/desktop-build.yml'
+      - 'apps/**'
+      - 'packages/**'
+      - 'data/**'
+      - 'tooling/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '*config*'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.name }} x64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            runner: windows-2022
+            script: build:windows
+            artifact: windows-x64
+            path: release/tauri/windows/*
+          - name: Linux
+            runner: ubuntu-22.04
+            script: build:linux
+            artifact: linux-x64
+            path: release/tauri/linux/*
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Linux native dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils libssl-dev xvfb openbox
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test -- --run
+      - run: npm run test:packaging
+      - name: Install browser test runtime
+        run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - name: Native Windows smoke tests
+        if: runner.os == 'Windows'
+        run: npm run test:desktop
+      - name: Native Linux smoke tests
+        if: runner.os == 'Linux'
+        run: xvfb-run -a bash tooling/scripts/testing/linux-native-smoke.sh
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+      - name: Build native installers
+        run: npm run ${{ matrix.script }}
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: '1'
+      - name: Store installers for download
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-architecture-planner-${{ matrix.artifact }}
+          path: ${{ matrix.path }}
+          if-no-files-found: error
+          retention-days: 7

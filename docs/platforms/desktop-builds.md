@@ -1,0 +1,64 @@
+# Windows and Linux desktop installers
+
+The same Tauri/Rust application can now be packaged for Windows x64 and Linux x64. Canonical JSON, pricing and browser-local credentials are unchanged. No backend or release publishing is added.
+
+| Platform | Command on that platform | Packages | Copied installers |
+| --- | --- | --- | --- |
+| Windows x64 | `npm run build:windows` | NSIS setup `.exe`, WiX `.msi` | `release/tauri/windows/` |
+| Linux x64 | `npm run build:linux` | `.AppImage`, `.deb` | `release/tauri/linux/` |
+| Apple Silicon Mac | `npm run build:mac` | `.app`, `.dmg` | DMG in `release/tauri/` |
+
+`npm run build:desktop` chooses the matching native profile. The Windows/Linux commands intentionally fail on macOS before downloading or compiling incompatible toolchains. [Tauri recommends native runners](https://v2.tauri.app/distribute/pipelines/github/); its Windows MSI packaging requires Windows, and [NSIS cross-compilation has caveats](https://v2.tauri.app/distribute/windows-installer/). No Windows or Linux VM/container runtime is installed on this Mac, so those installers have not yet been generated or executed here.
+
+## Native prerequisites
+
+All platforms require Node.js 22.12+, npm, current stable Rust and the checked-in dependencies (`npm ci`). Windows requires Visual Studio Build Tools with Desktop development with C++, Windows SDK and WebView2. MSI packaging needs the VBScript optional Windows feature. See [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/).
+
+Windows installers are unsigned. If WebView2 is absent, the installer downloads Microsoft's bootstrapper; that initial setup requires internet access. Once installed, the manual planner workflow is local and works without credentials or network access.
+
+Build Linux packages on Ubuntu 22.04 x64 with:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils libssl-dev xvfb
+npm ci
+npm run build:linux
+```
+
+On Linux, the application uses system WebKitGTK/GTK. The DEB declares native package dependencies through Tauri. AppImage users still need a compatible Linux desktop and may need FUSE or `--appimage-extract-and-run`. Newer/older distributions and ARM builds require their own compatibility verification. Building on Ubuntu 22.04 avoids accidentally requiring a newer build host's glibc.
+
+## Native build workflow
+
+[`.github/workflows/desktop-build.yml`](../../.github/workflows/desktop-build.yml) runs on relevant pushes to `feat/next-implementation`, with an additional manual trigger after the workflow exists on the default branch. It runs on Windows Server 2022 and Ubuntu 22.04 x64. It checks lint, unit tests, build-script tests, browser E2E and native smoke tests, then generates installers with the locked Cargo dependencies. Linux native tests use Xvfb with Openbox and software rendering. Normal release builds omit native-smoke test hooks.
+
+An approved push of these changes starts both native jobs without merging into `main`. Inspect and download the run with:
+
+```bash
+gh run list --workflow desktop-build.yml
+gh run watch RUN_ID
+gh run download RUN_ID --dir release/ci
+```
+
+The two downloadable run artifacts are `cloud-architecture-planner-windows-x64` and `cloud-architecture-planner-linux-x64`, retained for seven days. No GitHub Release, tag, deployment or updater is created. The workflow uses read-only repository permissions. Build outputs are ignored by Git.
+
+## Implementation and validation
+
+Changed: platform Tauri configurations, bundled ICO/PNG icons, native origin validation, portable Node CLI invocation, packaging scripts and tests, cross-platform isolated native smoke launcher, workflow and documentation. `packages/desktop/Cargo.lock` is retained; no schema or pricing migrations are needed. The Windows navigation policy permits only its actual `http://tauri.localhost` bundled origin, with the development origin restricted to debug builds. Mac/Linux retain `tauri://localhost`.
+
+Run:
+
+```bash
+npm run lint
+npm test -- --run
+npm run build
+npm run test:packaging
+npm run test:e2e
+npm run test:rust
+npm run test:desktop
+```
+
+The native smoke suite checks two launches, persisted project edits, icons/diagram, absence of Node globals, and JSON/PNG/ZIP export contents. Windows/Linux use a temporary WebView data directory; macOS uses a separate test bundle identifier. Native save-panel interaction and installed-package startup still need a manual check on each new platform.
+
+Next step: approved push/workflow execution to build and validate Windows/Linux installers, then download the actual artifacts and report the runner results. This local preparation does not imply that Windows/Linux compilation or installer compatibility has already passed.
+
+Local verification passed: lint, 59 Vitest cases, strict TypeScript/static build, 3 packaging tests, 4 Rust tests, all 7 browser E2E cases, two Mac native smoke launches with persistence and JSON/PNG/ZIP checks, Rustfmt, Clippy with warnings denied, actionlint and `git diff --check`. Windows/Linux native build and installer verification remain pending approved runner execution.

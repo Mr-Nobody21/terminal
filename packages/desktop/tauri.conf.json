@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Cloud Architecture Planner",
+  "version": "0.1.0",
+  "identifier": "com.cloudarchitectureplanner.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev -- --port 5173 --strictPort",
+    "devUrl": "http://127.0.0.1:5173",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../../apps/web/dist"
+  },
+  "app": {
+    "windows": [],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self' ipc: http://ipc.localhost https: http://localhost:* http://127.0.0.1:* http://[::1]:*; object-src 'none'; frame-src 'none'; base-uri 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "../../apps/linux/assets/32x32.png",
+      "../../apps/linux/assets/128x128.png",
+      "../../apps/linux/assets/128x128@2x.png"
+    ]
+  }
+}

@@ -40,7 +40,7 @@ Deterministic code:
 
 ## Implemented application
 
-The static React MVP now lives in this repository. See [implementation handoff](docs/IMPLEMENTATION_HANDOFF.md) for phase status, validation and known limits. Existing handoff text above is retained.
+The static React MVP now lives in this repository. See [implementation handoff](status/handoffs/implementation.md) for phase status, validation and known limits. Existing handoff text above is retained.
 
 Use Node.js 22+ and npm:
 
@@ -59,4 +59,27 @@ export PLAYWRIGHT_BROWSERS_PATH="$PWD/.runtime/browsers"
 npm run dev
 ```
 
-Projects autosave to IndexedDB on this browser origin. Export JSON before changing origin or clearing browser data. AI is optional: settings persist endpoint/model preferences; keys stay in memory. No AI calls occur until submission. Production files are generated under `dist/` by `npm run build`; hash navigation and relative assets support static hosting. No deployment has been performed.
+Projects autosave to IndexedDB on this browser origin. Export JSON before changing origin or clearing browser data. AI is optional: settings persist endpoint/model preferences; keys stay in memory. No AI calls occur until submission. Production files are generated under `apps/web/dist/` by `npm run build`; hash navigation and relative assets support static hosting. No deployment has been performed.
+
+## Mac desktop application
+
+The Rust-based Tauri desktop shell uses macOS WebKit. With Rust and Xcode Command Line Tools installed, build the Apple Silicon `.app` and `.dmg` locally:
+
+```bash
+npm run build:mac
+```
+
+The DMG is in `release/tauri/`; the app is under `packages/desktop/target/aarch64-apple-darwin/release/bundle/macos/`. Run `npm run desktop` for the desktop application or `npm run test:desktop` for native acceptance tests. See [Mac desktop build](docs/platforms/mac.md) for installation, local project transfer, platform requirements and signing limitations.
+
+
+## Windows and Linux desktop packaging
+
+Run `npm run build:windows` on Windows x64 for EXE/MSI installers, or `npm run build:linux` on Linux x64 for AppImage/DEB packages. `npm run build:desktop` selects the native platform. A Windows/Linux GitHub Actions workflow for the implementation branch is ready; its installers have not yet been built on native runners. See [desktop builds](docs/platforms/desktop-builds.md) for prerequisites, output paths and verification status.
+
+Code organization is documented in [Codebase structure](docs/architecture/codebase-structure.md).
+
+## Workspace organization
+
+Platform applications live in `apps/web`, `apps/windows`, `apps/mac` and `apps/linux`. Shared UI, domain, adapters and the Rust shell live in `packages`. `backend` is reserved documentation only.
+
+See [codebase structure](docs/architecture/codebase-structure.md), [development setup](docs/development/setup.md), [current status](status/STATUS.md), [planning](planning/IMPLEMENTATION_PLAN.md) and [required infrastructure](infra/REQUIRED_INFRA.md). Root npm commands remain available; npm workspaces use one root lockfile.

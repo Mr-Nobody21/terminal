@@ -1,0 +1,11 @@
+{
+  "name": "@planner/mac",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ../../tooling/scripts/build/tauri.mjs dev",
+    "build": "node ../../tooling/scripts/build/tauri.mjs package mac",
+    "test": "node ../../tooling/scripts/build/tauri.mjs test"
+  }
+}

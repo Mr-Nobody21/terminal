@@ -4,28 +4,26 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "tsc -b && vite build",
+    "dev": "npm run dev --workspace @planner/web --",
+    "build": "npm run typecheck && npm run build --workspace @planner/web",
     "lint": "eslint .",
-    "test": "vitest",
-    "test:e2e": "playwright test",
-    "check": "npm run lint && npm test -- --run && npm run build && npm run test:e2e"
-  },
-  "dependencies": {
-    "@xyflow/react": "^12.8.5",
-    "dexie": "^4.2.0",
-    "docx": "^9.5.1",
-    "elkjs": "^0.10.0",
-    "jszip": "^3.10.1",
-    "pdf-lib": "^1.17.1",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "zod": "^4.1.11",
-    "zustand": "^5.0.8"
+    "test": "vitest --config tooling/config/vitest.config.ts",
+    "test:e2e": "playwright test --config tooling/config/playwright.config.ts",
+    "check": "npm run lint && npm test -- --run && npm run build && npm run test:e2e && npm run test:packaging",
+    "desktop": "node tooling/scripts/build/tauri.mjs dev",
+    "build:desktop": "node tooling/scripts/build/tauri.mjs package native",
+    "build:mac": "npm run build --workspace @planner/mac",
+    "test:desktop": "node tooling/scripts/build/tauri.mjs test",
+    "build:windows": "npm run build --workspace @planner/windows",
+    "build:linux": "npm run build --workspace @planner/linux",
+    "test:packaging": "node --test tooling/scripts/packaging/*.test.mjs apps/*/tests/*.test.mjs",
+    "test:rust": "node tooling/scripts/build/tauri.mjs rust-test",
+    "typecheck": "tsc -p tsconfig.json"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
     "@playwright/test": "^1.56.0",
+    "@tauri-apps/cli": "^2.12.1",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -40,6 +38,15 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.0",
     "vite": "^7.1.9",
-    "vitest": "^4.1.11"
-  }
+    "vitest": "^4.1.11",
+    "@planner/domain": "*",
+    "@planner/adapters": "*",
+    "@planner/ui": "*",
+    "jszip": "^3.10.1"
+  },
+  "description": "Local-first cloud architecture planning and deterministic cost estimates",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }
