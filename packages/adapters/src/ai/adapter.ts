@@ -38,7 +38,7 @@ export function createAdapter(settings:AISettings,key:string,fetcher:typeof fetc
       if(settings.provider==='anthropic')return anthropicResponse.parse(data).content.filter(x=>x.type==='text').map(x=>x.text??'').join('');
       if(settings.provider==='gemini')return geminiResponse.parse(data).candidates[0].content.parts.map(x=>x.text??'').join('');
       return openAIResponse.parse(data).choices[0].message.content;
-    }catch(error){if(controller.signal.aborted)throw new Error(timedOut?'AI request timed out. Try again.':'AI request cancelled.');if(error instanceof TypeError)throw new Error('Browser could not connect to the AI endpoint. Check network, endpoint, and browser CORS permissions. No proxy is configured.');if(error instanceof z.ZodError)throw new Error('AI endpoint returned an unsupported response envelope.');throw error;}
+    }catch(error){if(controller.signal.aborted)throw new Error(timedOut?'AI request timed out. Try again.':'AI request cancelled.',{cause:error});if(error instanceof TypeError)throw new Error('Browser could not connect to the AI endpoint. Check network, endpoint, and browser CORS permissions. No proxy is configured.',{cause:error});if(error instanceof z.ZodError)throw new Error('AI endpoint returned an unsupported response envelope.',{cause:error});throw error;}
     finally {clearTimeout(timer);request.signal?.removeEventListener('abort',abort);}
   }};
 }

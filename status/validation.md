@@ -1,3 +1,9 @@
+# Current validation — OTP and security hardening
+
+2026-10-09: lint, 117 shared tests, 21 real PostgreSQL/backend tests, 27 browser scenarios, strict UI/server builds and nine packaging checks pass. Dependency audit reports zero vulnerabilities. Live password → OTP → database-backed diagram → PNG export passes under the preview CSP; temporary test account removed. See [security handoff](handoffs/otp-and-security-hardening.md). Desktop installers/native auth smoke tests were not rebuilt or run for the current backend.
+
+The following records earlier desktop build validation only.
+
 # Validation — desktop build completion
 
 Updated 2026-10-07. Build source `5149c00c97941126c94575e81ff3f204a5a3834b`. Native Windows/Linux [workflow](https://github.com/Mr-Nobody21/terminal/actions/runs/37518425062) passed; Mac release build ran locally. AI tests use mocked responses and no paid calls.
@@ -25,3 +31,7 @@ First native run: Linux passed; Windows failed before unit tests because direct 
 Native smoke suites use isolated profiles/identifiers and a separate smoke feature; production builds omit those hooks. Installer generation and header/metadata verification do not claim that every interactive installer/save-dialog flow was manually exercised. Windows packages are unsigned, and Mac is ad-hoc signed without notarization.
 
 Canonical version 1, entity IDs, IndexedDB name, pricing formulas and AI/export contracts remain unchanged. Existing large-chunk/dependency annotation warnings are nonfatal. Build outputs and downloaded CI archives are ignored by Git.
+
+## pnpm migration and dependency review — 2026-10-09
+
+Frozen pnpm install, full audit (zero advisories), lint, 117 shared tests, 6 backend unit tests, 21 actual PostgreSQL integration tests, web/backend build, 27 browser tests, 9 packaging tests and 4 deployment tests passed. Portable release generation passed; packaged production preflight correctly rejected fixed development OTP. No native rebuild or public deployment. Evidence and limitations: [dependency review](../docs/security/dependency-review-2026-10-09.md).

@@ -1,0 +1,128 @@
+[
+  {
+    "id": "ibm/virtual-server",
+    "source": "https://raw.githubusercontent.com/IBM-Cloud/architecture-icons/32d9c311b0dadb95f0fe4fa88b27f3af41c1dbc5/svg/Compute/Virtual%20Server.svg",
+    "upstream": "svg/Compute/Virtual Server.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "1d729d78202909cc0d034acb75a96d7cefa7850dc7b3d7c69ef0b273a72a6263"
+  },
+  {
+    "id": "ibm/kubernetes",
+    "source": "https://raw.githubusercontent.com/IBM-Cloud/architecture-icons/32d9c311b0dadb95f0fe4fa88b27f3af41c1dbc5/svg/Compute/Kubernetes.svg",
+    "upstream": "svg/Compute/Kubernetes.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "8bdc26ffc72403bd7da5430427da7adbcf55e1979772a1b25ce5b3dab41c9b44"
+  },
+  {
+    "id": "ibm/database",
+    "source": "https://raw.githubusercontent.com/IBM-Cloud/architecture-icons/32d9c311b0dadb95f0fe4fa88b27f3af41c1dbc5/svg/Data%20%26%20Storage/Database.svg",
+    "upstream": "svg/Data & Storage/Database.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "5f8d5c3a24bfe8e1bbcb5225d5d4b0059ee43aa2d3da484d30ea7d2e8022b19a"
+  },
+  {
+    "id": "ibm/object-storage",
+    "source": "https://raw.githubusercontent.com/IBM-Cloud/architecture-icons/32d9c311b0dadb95f0fe4fa88b27f3af41c1dbc5/svg/Data%20%26%20Storage/Object%20Bucket.svg",
+    "upstream": "svg/Data & Storage/Object Bucket.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "c6672233d76a407d4c2e42795978d36afcf622c93f69c6cf48bc1f3f11ef11d2"
+  },
+  {
+    "id": "ibm/load-balancer",
+    "source": "https://raw.githubusercontent.com/IBM-Cloud/architecture-icons/32d9c311b0dadb95f0fe4fa88b27f3af41c1dbc5/svg/Networking/load-balancer--application.svg",
+    "upstream": "svg/Networking/load-balancer--application.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "1085c83e7f80d11428cf38b20e66c5b754cbdfac53127bb8c282533ac67f814b"
+  },
+  {
+    "id": "ibm/vpc",
+    "source": "https://raw.githubusercontent.com/IBM-Cloud/architecture-icons/32d9c311b0dadb95f0fe4fa88b27f3af41c1dbc5/svg/Networking/ibm-cloud--vpc.svg",
+    "upstream": "svg/Networking/ibm-cloud--vpc.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "db4c6f4f6d4a16c5f73a86a5b0f78b07f4e2705ae2788215482379695cb592f4"
+  },
+  {
+    "id": "kubernetes/pod",
+    "source": "https://raw.githubusercontent.com/kubernetes/community/149066325ed521eab576a262ddff8f4da074d5de/icons/svg/resources/unlabeled/pod.svg",
+    "upstream": "icons/svg/resources/unlabeled/pod.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "3356f7ca970f811da2b1aa34a0f13e846255378727809ab6629837a842db0a2d"
+  },
+  {
+    "id": "kubernetes/deployment",
+    "source": "https://raw.githubusercontent.com/kubernetes/community/149066325ed521eab576a262ddff8f4da074d5de/icons/svg/resources/unlabeled/deploy.svg",
+    "upstream": "icons/svg/resources/unlabeled/deploy.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "d96f6e93a0f57ca9583b2120e3ddb4453afb5a29aa6d8c1360e8eb8e458489f7"
+  },
+  {
+    "id": "kubernetes/service",
+    "source": "https://raw.githubusercontent.com/kubernetes/community/149066325ed521eab576a262ddff8f4da074d5de/icons/svg/resources/unlabeled/svc.svg",
+    "upstream": "icons/svg/resources/unlabeled/svc.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "a86fad881253c4d7abbe7413c0efbca2e7dde7e54a55774f79349494bd823990"
+  },
+  {
+    "id": "kubernetes/ingress",
+    "source": "https://raw.githubusercontent.com/kubernetes/community/149066325ed521eab576a262ddff8f4da074d5de/icons/svg/resources/unlabeled/ing.svg",
+    "upstream": "icons/svg/resources/unlabeled/ing.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "66ac75442eff83ef51a8d1ef01edd858cc621b0f43ff60e2170f1d10c4d49813"
+  },
+  {
+    "id": "kubernetes/secret",
+    "source": "https://raw.githubusercontent.com/kubernetes/community/149066325ed521eab576a262ddff8f4da074d5de/icons/svg/resources/unlabeled/secret.svg",
+    "upstream": "icons/svg/resources/unlabeled/secret.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "144fb9972d456ef172fcebbe6a6d7d4921254c6586b0381962c9add0b34468c2"
+  },
+  {
+    "id": "kubernetes/node",
+    "source": "https://raw.githubusercontent.com/kubernetes/community/149066325ed521eab576a262ddff8f4da074d5de/icons/svg/infrastructure_components/unlabeled/node.svg",
+    "upstream": "icons/svg/infrastructure_components/unlabeled/node.svg",
+    "retrieved": "2026-10-08",
+    "sha256": "a99367b8a805d9bbc91ef82cf47c8a243fe4e6dd8ff2ce4342f597c2cbec965a"
+  },
+  {
+    "id": "oracle/compute",
+    "source": "https://docs.oracle.com/iaas/Content/Resources/Assets/OCI-Style-Guide-for-Drawio.zip",
+    "upstream": "Compute - Virtual Machine VM",
+    "retrieved": "2026-10-08",
+    "sha256": "19b099960e3abaf60534379c3fe3c6f57a2f396afaa7d3f142b94df2c3384d9c"
+  },
+  {
+    "id": "oracle/functions",
+    "source": "https://docs.oracle.com/iaas/Content/Resources/Assets/OCI-Style-Guide-for-Drawio.zip",
+    "upstream": "Compute - Functions",
+    "retrieved": "2026-10-08",
+    "sha256": "2a0588358f468c9d6373c1b6871a9dd5994bdf43e0dff318370519f47f3745fc"
+  },
+  {
+    "id": "oracle/object-storage",
+    "source": "https://docs.oracle.com/iaas/Content/Resources/Assets/OCI-Style-Guide-for-Drawio.zip",
+    "upstream": "Storage - Object Storage",
+    "retrieved": "2026-10-08",
+    "sha256": "a42bab825ad23995b536a5e7b21d52872c1e4fb56ec9338fd97145aac0ea97b4"
+  },
+  {
+    "id": "oracle/vcn",
+    "source": "https://docs.oracle.com/iaas/Content/Resources/Assets/OCI-Style-Guide-for-Drawio.zip",
+    "upstream": "Networking - Virtual Cloud Network VCN",
+    "retrieved": "2026-10-08",
+    "sha256": "9f25d62cbf0e5ac4f591ed488567218b2cd4a00e3cc2753204146bc12edfbf77"
+  },
+  {
+    "id": "oracle/load-balancer",
+    "source": "https://docs.oracle.com/iaas/Content/Resources/Assets/OCI-Style-Guide-for-Drawio.zip",
+    "upstream": "Networking - Load Balancer",
+    "retrieved": "2026-10-08",
+    "sha256": "bb74db8c8cce601c9421f7f38811b6e3df4b313505c40ec0101b6585000bacb3"
+  },
+  {
+    "id": "oracle/autonomous-db",
+    "source": "https://docs.oracle.com/iaas/Content/Resources/Assets/OCI-Style-Guide-for-Drawio.zip",
+    "upstream": "Database - Autonomous DB",
+    "retrieved": "2026-10-08",
+    "sha256": "c734a5b7ed133bd41407d8d0038e2610e80b7870c138ecb9003a6549014eb7a0"
+  }
+]

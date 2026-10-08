@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "identifier": "com.cloudarchitectureplanner.desktop",
   "build": {
-    "beforeDevCommand": "npm run dev -- --port 5173 --strictPort",
+    "beforeDevCommand": "pnpm run dev --port 5173 --strictPort",
     "devUrl": "http://127.0.0.1:5173",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "pnpm run build",
     "frontendDist": "../../apps/web/dist"
   },
   "app": {

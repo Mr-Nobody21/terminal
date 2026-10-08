@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "vite build"
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {
-    "@planner/ui": "*",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "@planner/ui": "workspace:*",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   }
 }

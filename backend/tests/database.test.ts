@@ -1,0 +1,87 @@
+import { beforeAll,afterAll,describe,it,expect,vi } from 'vitest';
+import { Pool } from 'pg';
+import { randomUUID,scryptSync } from 'node:crypto';
+import { mkdtemp,writeFile,rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { database,migrate } from '../src/db';
+import { configuration } from '../src/config';
+import { buildApp } from '../src/app';
+import { seedAssets } from '../src/seed';
+import { sampleProject } from '../../packages/domain/src/examples/index';
+import { createDrawing } from '../../packages/domain/src/drawings/model';
+import { tokenHash } from '../src/modules/auth';
+const url=process.env.TEST_DATABASE_URL;
+describe.skipIf(!url)('PostgreSQL integration',()=>{
+ const pool=database(url!),config=configuration({DATABASE_URL:url??'postgresql://localhost/unused_skipped_tests',NODE_ENV:'test'});
+ let app:Awaited<ReturnType<typeof buildApp>>,schema:string,a:string,b:string,uid:string;
+ const headers=(cookie='')=>({'x-planner-request':'1',origin:'http://localhost:5173',cookie});
+ const cookieOf=(response:{headers:Record<string,unknown>},name:string)=>{const values=response.headers['set-cookie'];return (Array.isArray(values)?values:[String(values)]).map(value=>String(value).split(';')[0]).find(value=>value.startsWith(name+'='))!;};
+ const verify=(cookie:string,otp='904530')=>app.inject({method:'POST',url:'/api/auth/verify-otp',headers:headers(cookie),payload:{otp}});
+ beforeAll(async()=>{schema='test_'+randomUUID().replaceAll('-','');await pool.query(`CREATE SCHEMA ${schema}`);await pool.end();isolated=new Pool({connectionString:url,options:`-c search_path=${schema}`});});
+ // A separate pool sets search_path on every connection; never touch an existing application's tables.
+ let isolated:Pool;
+ afterAll(async()=>{await app?.close();await isolated.end();const cleanup=database(url!);await cleanup.query(`DROP SCHEMA ${schema} CASCADE`);await cleanup.end();});
+ it('applies migrations once, seeds bytea assets idempotently and detects checksum drift',async()=>{await migrate(isolated);await migrate(isolated);expect((await isolated.query('SELECT * FROM schema_migrations')).rowCount).toBe(4);const count=await seedAssets(isolated);expect(count).toBeGreaterThan(50);await seedAssets(isolated);expect((await isolated.query('SELECT * FROM assets')).rowCount).toBe(count);const dir=await mkdtemp(tmpdir()+'/planner-migration-');try{await writeFile(dir+'/001_auth.sql','SELECT 42;');await expect(migrate(isolated,dir)).rejects.toThrow('checksum');}finally{await rm(dir,{recursive:true});}app=await buildApp(isolated,config);});
+ it('requires OTP for registration and stores only verified session digests',async()=>{
+  const register=async(email:string)=>app.inject({method:'POST',url:'/api/auth/register',headers:headers(),payload:{email,password:'correct horse battery staple',displayName:'Test'}});
+  const first=await register('ALICE@example.com');expect(first.statusCode).toBe(201);expect(first.json().otpRequired).toBe(true);expect(first.body).not.toContain('904530');expect(first.body).not.toContain('password');
+  const pending=cookieOf(first,'planner_challenge');expect((await app.inject({url:'/api/auth/me',headers:headers(pending)})).statusCode).toBe(401);expect((await isolated.query('SELECT * FROM sessions')).rowCount).toBe(0);
+  const verified=await verify(pending);expect(verified.statusCode).toBe(200);uid=verified.json().user.id;a=cookieOf(verified,'planner_session');expect(verified.headers['set-cookie']!.toString()).toContain('HttpOnly');expect((await verify(pending)).statusCode).toBe(401);
+  const second=await register('bob@example.com');b=cookieOf(await verify(cookieOf(second,'planner_challenge')),'planner_session');expect((await app.inject({url:'/api/auth/me',headers:headers(a)})).json().user.email).toBe('alice@example.com');
+  const rows=await isolated.query('SELECT * FROM sessions');expect(rows.rows.every(s=>s.mfa_verified_at)).toBe(true);expect(rows.rows.some(s=>s.token_hash===a.split('=')[1])).toBe(false);expect(rows.rows.some(s=>s.token_hash===tokenHash(a.split('=')[1]))).toBe(true);expect((await register('alice@example.com')).statusCode).toBe(409);
+ });
+ it('blocks CSRF and bad logins and leaves project storage untouched',async()=>{expect((await app.inject({method:'POST',url:'/api/auth/login',payload:{}})).statusCode).toBe(403);expect((await app.inject({method:'POST',url:'/api/auth/logout',headers:{...headers(a),origin:'https://evil.test'}})).statusCode).toBe(403);const login=await app.inject({method:'POST',url:'/api/auth/login',headers:headers(),payload:{email:'alice@example.com',password:'incorrect password'}});expect(login.statusCode).toBe(401);expect((await isolated.query('SELECT * FROM projects')).rowCount).toBe(0);expect((await app.inject({url:'/api/projects'})).statusCode).toBe(401);});
+ it('serves seeded assets and enforces private upload ownership',async()=>{const catalog=await app.inject({url:'/api/assets/catalog'});expect(catalog.statusCode).toBe(200);expect(catalog.json().assets.find((a:{key:string})=>a.key==='/icons/fallback.svg').content).toContain('<svg');const png='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a6X8AAAAASUVORK5CYII=';const uploaded=await app.inject({method:'POST',url:'/api/assets',headers:headers(a),payload:{name:'tiny.png',mime:'image/png',base64:png}});expect(uploaded.statusCode).toBe(201);const id=uploaded.json().id;expect((await app.inject({url:`/api/assets/${id}`,headers:headers(b)})).statusCode).toBe(404);expect((await app.inject({url:`/api/assets/${id}`,headers:headers(a)})).rawPayload.equals(Buffer.from(png,'base64'))).toBe(true);expect((await app.inject({method:'DELETE',url:`/api/assets/${id}`,headers:headers(b)})).statusCode).toBe(404);expect((await app.inject({method:'DELETE',url:`/api/assets/${id}`,headers:headers(a)})).statusCode).toBe(200);expect((await isolated.query('SELECT * FROM asset_blobs WHERE asset_id=$1',[id])).rowCount).toBe(0);});
+ it('round-trips canonical projects, rejects stale writes and prevents cross-account access',async()=>{const document=sampleProject();const put=(cookie:string,revision:number,doc:unknown=document)=>app.inject({method:'PUT',url:`/api/projects/${document.id}`,headers:headers(cookie),payload:{document:doc,drawings:[],revision}});expect((await put(a,0)).json().revision).toBe(1);expect((await put(a,0)).statusCode).toBe(409);expect((await put(a,1)).json().revision).toBe(2);expect((await app.inject({url:`/api/projects/${document.id}`,headers:headers(a)})).json().document).toEqual(document);expect((await app.inject({url:`/api/projects/${document.id}`,headers:headers(b)})).statusCode).toBe(404);expect((await app.inject({method:'DELETE',url:`/api/projects/${document.id}`,headers:headers(b)})).statusCode).toBe(404);expect((await put(a,2,{...document,apiKey:'secret'})).statusCode).toBe(400);expect((await put(a,2,{...document,version:99})).statusCode).toBe(400);});
+ it('stores imported embedded images atomically with project references and deduplicates bytes',async()=>{
+  const document=sampleProject(),drawing=createDrawing(document.id,'flowchart'),base64='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a6X8AAAAASUVORK5CYII=';
+  drawing.nodes.push({id:randomUUID(),shape:'image',label:'Imported image',imageData:'data:image/png;base64,'+base64,imageWidth:1,imageHeight:1,fields:[],x:0,y:0});
+  const put=()=>app.inject({method:'PUT',url:`/api/projects/${document.id}`,headers:headers(a),payload:{document,drawings:[drawing],revision:0}});
+  expect((await put()).statusCode).toBe(200);expect((await isolated.query('SELECT * FROM project_assets WHERE project_id=$1',[document.id])).rowCount).toBe(1);
+  const upload=await app.inject({method:'POST',url:'/api/assets',headers:headers(a),payload:{name:'same.png',mime:'image/png',base64}});expect(upload.statusCode).toBe(201);
+  expect((await isolated.query('SELECT * FROM assets WHERE owner_id=$1',[uid])).rowCount).toBe(1);
+  await app.inject({method:'DELETE',url:`/api/projects/${document.id}`,headers:headers(a)});expect((await isolated.query('SELECT * FROM project_assets WHERE project_id=$1',[document.id])).rowCount).toBe(0);
+  const invalid=structuredClone(drawing);invalid.nodes[0].imageData='data:image/png;base64,ZmFrZQ==';
+  expect((await app.inject({method:'PUT',url:`/api/projects/${document.id}`,headers:headers(a),payload:{document,drawings:[invalid],revision:0}})).statusCode).toBe(400);
+  expect((await isolated.query('SELECT * FROM projects WHERE id=$1',[document.id])).rowCount).toBe(0);
+ });
+ it('rate limits repeated authentication failures',async()=>{const limited=await buildApp(isolated,config);try{let status=0;for(let i=0;i<11;i++){status=(await limited.inject({method:'POST',url:'/api/auth/login',headers:headers(),payload:{}})).statusCode;}expect(status).toBe(429);}finally{await limited.close();}});
+ it('expires OTP challenges, limits guesses, prevents replay and ignores legacy sessions',async()=>{
+  const login=()=>app.inject({method:'POST',url:'/api/auth/login',headers:headers(),payload:{email:'alice@example.com',password:'correct horse battery staple'}});
+  let pending=cookieOf(await login(),'planner_challenge');await isolated.query("UPDATE auth_challenges SET expires_at=now()-interval '1 second' WHERE token_hash=$1",[tokenHash(pending.split('=')[1])]);expect((await verify(pending)).statusCode).toBe(401);
+  pending=cookieOf(await login(),'planner_challenge');for(let i=0;i<5;i++)expect((await verify(pending,'000000')).statusCode).toBe(401);expect((await verify(pending)).statusCode).toBe(401);
+  const replaced=pending;pending=cookieOf(await login(),'planner_challenge');expect((await verify(replaced)).statusCode).toBe(401);const concurrent=await Promise.all([verify(pending),verify(pending)]);expect(concurrent.map(r=>r.statusCode).sort()).toEqual([200,401]);
+  const legacy='a'.repeat(64);await isolated.query("INSERT INTO sessions(token_hash,user_id,expires_at) VALUES($1,$2,now()+interval '1 day')",[tokenHash(legacy),uid]);expect((await app.inject({url:'/api/auth/me',headers:headers('planner_session='+legacy)})).statusCode).toBe(401);
+  const idle='b'.repeat(64);await isolated.query("INSERT INTO sessions(token_hash,user_id,expires_at,mfa_verified_at,last_seen_at) VALUES($1,$2,now()+interval '1 day',now(),now()-interval '31 minutes')",[tokenHash(idle),uid]);expect((await app.inject({url:'/api/auth/me',headers:headers('planner_session='+idle)})).statusCode).toBe(401);
+ });
+ it('throttles one account across IPs before expensive hashing and sets retry headers',async()=>{
+  for(let i=0;i<8;i++){const response=await app.inject({method:'POST',url:'/api/auth/login',remoteAddress:`192.0.2.${i+1}`,headers:headers(),payload:{email:'unknown@example.com',password:'incorrect password phrase'}});expect(response.statusCode).toBe(401);}
+  const blocked=await app.inject({method:'POST',url:'/api/auth/login',remoteAddress:'192.0.2.99',headers:headers(),payload:{email:'unknown@example.com',password:'incorrect password phrase'}});expect(blocked.statusCode).toBe(429);expect(Number(blocked.headers['retry-after'])).toBeGreaterThan(0);const restarted=await buildApp(isolated,config);try{expect((await restarted.inject({method:'POST',url:'/api/auth/login',remoteAddress:'192.0.2.100',headers:headers(),payload:{email:'unknown@example.com',password:'incorrect password phrase'}})).statusCode).toBe(429);}finally{await restarted.close();}await isolated.query("UPDATE security_rate_limits SET expires_at=now()-interval '1 second' WHERE key_hash=$1",[tokenHash('password-account:unknown@example.com')]);expect((await app.inject({method:'POST',url:'/api/auth/login',remoteAddress:'192.0.2.101',headers:headers(),payload:{email:'unknown@example.com',password:'incorrect password phrase'}})).statusCode).toBe(401);
+  expect((await isolated.query('SELECT * FROM security_events WHERE event=$1',['password_failed'])).rowCount).toBeGreaterThanOrEqual(8);
+ });
+ it('adds defensive headers, small auth body limits and global request throttling',async()=>{
+  const health=await app.inject({url:'/api/health'});expect(health.headers['x-frame-options']).toBe('DENY');expect(health.headers['content-security-policy']).toContain("default-src 'none'");expect(health.headers['referrer-policy']).toBe('no-referrer');
+  expect((await app.inject({method:'POST',url:'/api/auth/login',remoteAddress:'192.0.2.200',headers:headers(),payload:{password:'x'.repeat(5000)}})).statusCode).toBe(413);
+  let status=0;for(let i=0;i<301;i++){status=(await app.inject({url:i%2?'/api/health':'/api/ready',remoteAddress:'192.0.2.201'})).statusCode;}expect(status).toBe(429);
+ });
+ it('coalesces concurrent public catalog loads instead of repeating blob queries',async()=>{
+  const fresh=await buildApp(isolated,config),spy=vi.spyOn(isolated,'query');
+  try{const responses=await Promise.all(Array.from({length:4},()=>fresh.inject({url:'/api/assets/catalog'})));expect(responses.every(r=>r.statusCode===200)).toBe(true);expect(spy.mock.calls.filter(call=>String(call[0]).includes('logical_key AS key'))).toHaveLength(1);expect(spy.mock.calls.filter(call=>String(call[0]).includes('asset_id=ANY'))).toHaveLength(1);}finally{spy.mockRestore();await fresh.close();}
+ });
+ it('enforces transactional storage quotas and still permits deduplicated uploads',async()=>{
+  const owner=(await isolated.query<{id:string}>("SELECT id FROM users WHERE email='bob@example.com'")).rows[0].id;
+  for(let i=0;i<10;i++)await isolated.query("INSERT INTO assets(id,owner_id,name,mime_type,size_bytes,sha256,storage_key) VALUES($1,$2,'quota fixture','image/png',5000000,$3,'fixture')",[randomUUID(),owner,String(i).padStart(64,'0')]);
+  const uploaded=await app.inject({method:'POST',url:'/api/assets',headers:headers(b),payload:{name:'tiny.png',mime:'image/png',base64:'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a6X8AAAAASUVORK5CYII='}});expect(uploaded.statusCode).toBe(413);
+  expect((await isolated.query('SELECT * FROM assets WHERE owner_id=$1',[owner])).rowCount).toBe(10);
+ });
+ it('upgrades existing scrypt-v1 passwords without changing account identity',async()=>{
+  const salt=Buffer.alloc(16),legacy='scrypt-v1$'+salt.toString('hex')+'$'+scryptSync('correct horse battery staple',salt,64,{N:32768,r:8,p:1,maxmem:67108864}).toString('hex');
+  await isolated.query('UPDATE users SET password_hash=$1 WHERE id=$2',[legacy,uid]);const login=await app.inject({method:'POST',url:'/api/auth/login',headers:headers(),payload:{email:'alice@example.com',password:'correct horse battery staple'}});expect(login.json().otpRequired).toBe(true);expect((await isolated.query('SELECT password_hash FROM users WHERE id=$1',[uid])).rows[0].password_hash).toMatch(/^scrypt-v2\$/);expect((await verify(cookieOf(login,'planner_challenge'))).json().user.id).toBe(uid);
+ });
+ it('caps active verified sessions at five per account',async()=>{
+  const owner=randomUUID();await isolated.query("INSERT INTO users(id,email,display_name,password_hash) SELECT $1,'sessions@example.com','Sessions',password_hash FROM users WHERE id=$2",[owner,uid]);let first='',last='';
+  for(let i=0;i<6;i++){const login=await app.inject({method:'POST',url:'/api/auth/login',remoteAddress:'192.0.2.202',headers:headers(),payload:{email:'sessions@example.com',password:'correct horse battery staple'}});expect(login.statusCode).toBe(200);const verified=await app.inject({method:'POST',url:'/api/auth/verify-otp',remoteAddress:'192.0.2.202',headers:headers(cookieOf(login,'planner_challenge')),payload:{otp:'904530'}});expect(verified.statusCode).toBe(200);last=cookieOf(verified,'planner_session');if(!i)first=last;}
+  expect((await isolated.query('SELECT * FROM sessions WHERE user_id=$1',[owner])).rowCount).toBe(5);expect((await app.inject({url:'/api/auth/me',headers:headers(first)})).statusCode).toBe(401);expect((await app.inject({url:'/api/auth/me',headers:headers(last)})).statusCode).toBe(200);
+ });
+ it('logs in, expires sessions and revokes every session after password changes',async()=>{const login=await app.inject({method:'POST',url:'/api/auth/login',headers:headers(),payload:{email:'alice@example.com',password:'correct horse battery staple'}});expect(login.statusCode).toBe(200);expect(login.json().otpRequired).toBe(true);const verified=await verify(cookieOf(login,'planner_challenge'));expect(verified.statusCode).toBe(200);const cookie=cookieOf(verified,'planner_session');await isolated.query('UPDATE sessions SET expires_at=now()-interval \'1 second\' WHERE token_hash=$1',[tokenHash(cookie.split('=')[1])]);expect((await app.inject({url:'/api/auth/me',headers:headers(cookie)})).statusCode).toBe(401);const pending=cookieOf(await app.inject({method:'POST',url:'/api/auth/login',headers:headers(),payload:{email:'alice@example.com',password:'correct horse battery staple'}}),'planner_challenge');const change=await app.inject({method:'POST',url:'/api/auth/password',headers:headers(a),payload:{currentPassword:'correct horse battery staple',newPassword:'a different strong password',otp:'904530'}});expect(change.statusCode).toBe(200);expect((await verify(pending)).statusCode).toBe(401);expect((await isolated.query('SELECT * FROM sessions WHERE user_id=$1',[uid])).rowCount).toBe(0);expect((await app.inject({url:'/api/auth/me',headers:headers(a)})).statusCode).toBe(401);expect((await app.inject({method:'POST',url:'/api/auth/logout',headers:headers(b)})).statusCode).toBe(200);expect((await app.inject({url:'/api/auth/me',headers:headers(b)})).statusCode).toBe(401);});
+});

@@ -1,0 +1,20 @@
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { beforeEach, expect, it, vi } from 'vitest';
+import { useDrawings } from './useDrawings';
+const storage = vi.hoisted(() => ({ list: vi.fn(), save: vi.fn() }));
+vi.mock('@planner/adapters/storage/drawings', () => ({ drawingRepository: storage }));
+beforeEach(() => { storage.list.mockReset().mockResolvedValue([]); storage.save.mockReset().mockResolvedValue(undefined); });
+it('retains the drawing and exposes recovery when a save fails', async () => {
+    storage.save.mockRejectedValue(new Error('disk blocked'));
+    const projectId = crypto.randomUUID();
+    const { result } = renderHook(() => useDrawings(projectId));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    act(() => { result.current.ensure('flowchart'); });
+    await waitFor(() => expect(result.current.error).toContain('Export drawing JSON'));
+    expect(result.current.drawings).toHaveLength(1);
+    await expect(result.current.flush()).rejects.toThrow('before switching projects');
+    storage.save.mockResolvedValue(undefined);
+    act(() => { result.current.save(result.current.drawings[0]); });
+    await waitFor(() => expect(result.current.status).toBe('Drawing saved locally'));
+    await expect(result.current.flush()).resolves.toBeUndefined();
+});

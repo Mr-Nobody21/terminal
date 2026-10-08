@@ -4,12 +4,12 @@ The desktop shell now uses Tauri 2 and Rust with macOS WKWebView. Electron and i
 
 ## Build and launch
 
-Requires macOS 13+, Xcode Command Line Tools, a current stable Rust toolchain, Node.js 22.12+ and npm. This build targets Apple Silicon.
+Requires macOS 13+, Xcode Command Line Tools, a current stable Rust toolchain, Node.js 22.20+ or 24 LTS and pnpm 12.10.1. This build targets Apple Silicon.
 
 ```bash
-npm ci
-npm run desktop
-npm run build:mac
+pnpm install --frozen-lockfile
+pnpm run desktop
+pnpm run build:mac
 ```
 
 Artifacts:
@@ -41,11 +41,11 @@ The renderer has no Node APIs and no filesystem/shell plugin permissions. Its ex
 - `apps/mac/assets/mac-icon.icns`, `apps/mac/assets/icon.png`, `tooling/scripts/packaging/make-mac-icon.py`: bundled brand icon, no runtime icon download.
 
 ```bash
-npm run lint
-npm test -- --run
-npm run build
-npm run test:e2e
-npm run test:desktop
+pnpm run lint
+pnpm test --run
+pnpm run build
+pnpm run test:e2e
+pnpm run test:desktop
 ```
 
 The desktop suite runs Rust validation tests and builds a separate `native-smoke` feature with an isolated test application identifier. It launches WKWebView twice, checks diagram/icons, secure origin, native APIs, project persistence, and JSON/PNG/ZIP export contents. Test-only report/export bypass commands are compiled out of normal builds. Generated smoke profiles remain separate from normal projects. This is a native smoke suite, not macOS WebDriver automation; [Tauri does not provide macOS WebDriver support](https://v2.tauri.app/develop/tests/webdriver/). Native save-panel interaction requires a manual check; automated tests verify cancellation/error handling and the underlying export bridge without operating the panel.
@@ -60,6 +60,6 @@ The next local check is manually selecting/cancelling a native export save dialo
 
 Final artifact checks passed: ARM64 Mach-O, `codesign --verify --deep --strict`, DMG checksum verification, absence of native-smoke hooks in the production executable, and `git diff --check`.
 
-Windows/Linux packaging is now prepared separately; see [desktop builds](desktop-builds.md). `npm run build:desktop` now selects the native platform, while `npm run build:mac` retains Apple Silicon app/DMG output.
+Windows/Linux packaging is now prepared separately; see [desktop builds](desktop-builds.md). `pnpm run build:desktop` now selects the native platform, while `pnpm run build:mac` retains Apple Silicon app/DMG output.
 
 The header Full screen button uses native fullscreen in the desktop app and provides an Exit full screen control. F11 toggles the same control when delivered to the app. The normal macOS green window control and Control-Command-F menu shortcut remain available. Fullscreen uses the full workspace width and additional viewport height for the diagram.

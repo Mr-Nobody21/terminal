@@ -50,8 +50,10 @@ export function estimate(project:Project,variant:Variant=activeVariant(project))
  const resources=variant.resources.map(resourceEstimate);
  const sum=(items:ResourceEstimate[]):Totals=>({low:items.reduce((n,r)=>n+r.low,0),base:items.reduce((n,r)=>n+r.base,0),high:items.reduce((n,r)=>n+r.high,0),complete:items.every(r=>r.complete)});
  const groups=(key:'category'|'environment')=>Object.fromEntries([...new Set(resources.map(r=>r[key]))].map(k=>[k,sum(resources.filter(r=>r[key]===k))]));
+ const crossCloud = variant.connections.some(c => variant.resources.find(r=>r.id===c.source)?.provider !== variant.resources.find(r=>r.id===c.target)?.provider);
  const warnings=resources.flatMap(r=>r.warnings);if(!variant.resources.some(r=>r.configuration.scenarios))warnings.push('No workload variability supplied: low and high equal base.');
  for(const r of project.requirements.filter(r=>r.status==='unknown'&&!r.answer&&!r.assumptionId))warnings.push(`Unresolved requirement may affect pricing: ${r.text}`);
+ if(crossCloud)warnings.push('Cross-cloud connection transfer, VPN, interconnect and gateway charges are unpriced. Resource internet egress inputs do not establish connection-specific transfer costs.');
  warnings.push('Known subtotal only. Excludes taxes, credits, negotiated discounts and free tiers. Additional provider charges may apply.');
- return {...sum(resources),currency:'USD',completeness:resources.length?resources.filter(r=>r.complete).length/resources.length:1,resources,categories:groups('category'),environments:groups('environment'),warnings,sources:[...new Set(resources.flatMap(r=>r.lineItems.map(l=>l.rate.source)))]};
+ return {...sum(resources),complete:sum(resources).complete&&!crossCloud,currency:'USD',completeness:resources.length?resources.filter(r=>r.complete).length/resources.length:1,resources,categories:groups('category'),environments:groups('environment'),warnings,sources:[...new Set(resources.flatMap(r=>r.lineItems.map(l=>l.rate.source)))]};
 }

@@ -6,7 +6,7 @@ export const rateCatalogSchema=z.object({provider:z.enum(['aws','azure','gcp']),
 });
 export type Formula = 'instance'|'container'|'serverless'|'database'|'storage'|'egress'|'load-balancer';
 export type Rate = {provider:Provider;region:string;service:string;sku:string;formula:Formula;rates:Record<string,number>;source:string;retrieved:string;units:string;assumptions:string;maximum?:{input:string;value:number}};
-const rate=(provider:Provider,service:string,sku:string,formula:Formula,rates:Record<string,number>,source:string,units:string,assumptions:string):Rate=>({provider,region:{aws:'us-east-1',azure:'eastus',gcp:'us-central1'}[provider],service,sku,formula,rates,source,retrieved:'2026-10-06',units,assumptions});
+const rate=(provider:'aws'|'azure'|'gcp',service:string,sku:string,formula:Formula,rates:Record<string,number>,source:string,units:string,assumptions:string):Rate=>({provider,region:{aws:'us-east-1',azure:'eastus',gcp:'us-central1'}[provider],service,sku,formula,rates,source,retrieved:'2026-10-06',units,assumptions});
 /** Deliberately bounded catalog: absent services/SKUs remain unpriced. */
 export const pricingCatalog:Rate[]=[
  {...rate('aws','s3','standard','storage',{storage:0.023,egress:0.09},'https://aws.amazon.com/s3/pricing/','USD/GiB-month; USD/GiB internet egress','S3 Standard first 50 TiB; internet egress first 10 TiB; excludes requests'),maximum:{input:'storage',value:51200}},

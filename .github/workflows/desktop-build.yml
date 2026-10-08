@@ -12,7 +12,9 @@ on:
       - 'tooling/**'
       - 'tests/**'
       - 'package.json'
-      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'backend/**'
       - '*config*'
 
 permissions:
@@ -39,33 +41,34 @@ jobs:
             path: release/tauri/linux/*
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
+          cache: pnpm
       - uses: dtolnay/rust-toolchain@stable
       - name: Install Linux native dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils libssl-dev xvfb openbox
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test -- --run
-      - run: npm run test:packaging
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm test --run
+      - run: pnpm run test:packaging
       - name: Install browser test runtime
-        run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+        run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm run test:e2e
       - name: Native Windows smoke tests
         if: runner.os == 'Windows'
-        run: npm run test:desktop
+        run: pnpm run test:desktop
       - name: Native Linux smoke tests
         if: runner.os == 'Linux'
         run: xvfb-run -a bash tooling/scripts/testing/linux-native-smoke.sh
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
       - name: Build native installers
-        run: npm run ${{ matrix.script }}
+        run: pnpm run ${{ matrix.script }}
         env:
           APPIMAGE_EXTRACT_AND_RUN: '1'
       - name: Store installers for download

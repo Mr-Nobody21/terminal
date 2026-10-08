@@ -8,8 +8,9 @@ import { repository } from '@planner/adapters/storage/repository';
 import { useAI } from '../features/ai/AIControls';
 import { downloadArtifact } from '@planner/adapters/platform/download';
 import type { ExportFormat } from '@planner/adapters/exports/artifacts';
-export function useWorkspace() {
+export function useWorkspace(keyboardHistory = true) {
     const { project, past, future, open, apply, undo, redo } = useHistory();
+    const [needsProjectChoice,setNeedsProjectChoice]=useState(false);
     const [projects, setProjects] = useState<Project[]>([]), [selected, setSelected] = useState<string>(), [message, setMessage] = useState(''), [saveStatus, setSaveStatus] = useState('Loading local projects…'), [page, setPage] = useState(location.hash === '#settings' ? 'settings' : 'workspace');
     const [requirementsCollapsed, setRequirementsCollapsed] = useState(false), [costCollapsed, setCostCollapsed] = useState(false);
     const [exporting, setExporting] = useState('');
@@ -26,9 +27,11 @@ export function useWorkspace() {
             if (cancelled)
                 return;
             setProjects(list);
+            setNeedsProjectChoice(list.length===0);
             open(list[0] ?? sampleProject());
         }).catch(() => {
             if (!cancelled) {
+                setNeedsProjectChoice(true);
                 open(sampleProject());
                 setMessage('Local storage is unavailable. Keep your work by downloading project JSON.');
             }
@@ -38,7 +41,7 @@ export function useWorkspace() {
         return () => { cancelled = true; window.removeEventListener('hashchange', route); };
     }, [open]);
     useEffect(() => {
-        if (!project)
+        if (!project || needsProjectChoice)
             return;
         const text = serializeProject(project);
         if (text === lastSaved.current)
@@ -61,7 +64,7 @@ export function useWorkspace() {
         }, 350);
         saveTimer.current = timer;
         return () => { cancelled = true; clearTimeout(timer); };
-    }, [project, refresh]);
+    }, [project, refresh, needsProjectChoice]);
     const change = useCallback((p: Project) => {
         try {
             apply(p);
@@ -73,6 +76,7 @@ export function useWorkspace() {
     }, [apply]);
     useEffect(() => {
         const key = (e: KeyboardEvent) => {
+            if (!keyboardHistory) return;
             const target = e.target as HTMLElement;
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable)
                 return;
@@ -90,7 +94,7 @@ export function useWorkspace() {
         };
         window.addEventListener('keydown', key);
         return () => window.removeEventListener('keydown', key);
-    }, [undo, redo]);
+    }, [undo, redo, keyboardHistory]);
     const json = () => {
         if (project)
             run(() => downloadArtifact(new Blob([serializeProject(project)], { type: 'application/json' }), `${project.name}.json`));
@@ -127,7 +131,7 @@ export function useWorkspace() {
             setExporting('');
         }
     };
-    return { project, projects, setProjects, selected, setSelected, message, setMessage, saveStatus, page, requirementsCollapsed, setRequirementsCollapsed, costCollapsed, setCostCollapsed, exporting, service, setService, provider, setProvider, from, setFrom, to, setTo, connectionLabel, setConnectionLabel, saveTimer, importRef, ai, fullscreen, refresh, change, run, json, flushCurrent, switchProject, exportFile, open, past, future, undo, redo, reportError };
+    return { needsProjectChoice,setNeedsProjectChoice,project, projects, setProjects, selected, setSelected, message, setMessage, saveStatus, page, requirementsCollapsed, setRequirementsCollapsed, costCollapsed, setCostCollapsed, exporting, service, setService, provider, setProvider, from, setFrom, to, setTo, connectionLabel, setConnectionLabel, saveTimer, importRef, ai, fullscreen, refresh, change, run, json, flushCurrent, switchProject, exportFile, open, past, future, undo, redo, reportError };
 }
 export type WorkspaceController = ReturnType<typeof useWorkspace>;
 export type LoadedWorkspace = WorkspaceController & {

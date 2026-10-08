@@ -44,7 +44,7 @@ if ! command_exists node && [[ -x "$SCRIPT_DIR/.runtime/bin/node" ]]; then
   export PATH="$SCRIPT_DIR/.runtime/bin:$PATH"
 fi
 require_command node
-require_command npm
+require_command pnpm
 require_command git
 if [[ "$RUN_CODEX" == "true" ]]; then
   require_command codex
@@ -55,7 +55,7 @@ echo "==> Target: ${PROJECT_DIR}"
 
 if [[ ! -e "$PROJECT_DIR" ]]; then
   echo "==> Creating Vite React TypeScript project"
-  npm create vite@latest "$PROJECT_DIR" -- --template react-ts
+  pnpm create vite "$PROJECT_DIR" --template react-ts
 fi
 
 cd "$PROJECT_DIR"
@@ -66,10 +66,10 @@ if [[ ! -f package.json ]]; then
 fi
 
 echo "==> Installing locked application dependencies"
-if [[ -f package-lock.json ]]; then
-  npm ci
+if [[ -f pnpm-lock.yaml ]]; then
+  pnpm install --frozen-lockfile
 else
-  npm install
+  pnpm install
 fi
 
 echo "==> Preserving existing instructions"

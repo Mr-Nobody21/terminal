@@ -1,0 +1,29 @@
+import { useEffect,useState,useRef,type ReactNode,type FormEvent } from 'react';
+import { api,ApiError,type Account,type PendingVerification } from '@planner/adapters/backend/client';
+import { loadAssetCatalog } from '@planner/adapters/backend/assets';
+import { scopeProjectRepository } from '@planner/adapters/storage/repository';
+import { scopeDrawingRepository } from '@planner/adapters/storage/drawings';
+import { useHistory } from '../../app/state/history';
+export function AuthGate({children}:{children:(account:Account,logout:()=>Promise<void>)=>ReactNode}){
+ const [account,setAccount]=useState<Account>(),[checking,setChecking]=useState(true),[ready,setReady]=useState(false),[error,setError]=useState(''),[register,setRegister]=useState(false),[busy,setBusy]=useState(false);
+ const [pendingUntil,setPendingUntil]=useState<number>(),[retryAt,setRetryAt]=useState(0),[clock,setClock]=useState(Date.now());
+ const generation=useRef(0);
+ const cooldown=Math.max(0,Math.ceil((retryAt-clock)/1000)),expires=Math.max(0,Math.ceil(((pendingUntil??0)-clock)/1000));
+ useEffect(()=>{if(!pendingUntil&&!retryAt)return;const timer=setInterval(()=>setClock(Date.now()),1000);return()=>clearInterval(timer);},[pendingUntil,retryAt]);
+ const failure=(error:unknown)=>{setError(error instanceof Error?error.message:'Sign in failed');if(error instanceof ApiError&&error.status===429){const now=Date.now();setClock(now);setRetryAt(now+Math.min(error.retryAfter??60,3600)*1000);}};
+ const activate=async(user:Account,expected=++generation.current)=>{await loadAssetCatalog();if(expected!==generation.current)return;scopeProjectRepository(user.id);scopeDrawingRepository(user.id);useHistory.setState({project:null,past:[],future:[]});setAccount(user);setReady(true);setPendingUntil(undefined);setRetryAt(0);};
+ const check=async()=>{const expected=++generation.current;setChecking(true);setError('');try{const {user}=await api<{user:Account}>('/auth/me');await activate(user,expected);}catch(error){if(expected===generation.current&&!(error instanceof ApiError&&error.status===401))failure(error);}finally{if(expected===generation.current)setChecking(false);}};
+ useEffect(()=>{void check();return()=>{generation.current++;};},[]);
+ const submit=async(event:FormEvent<HTMLFormElement>)=>{
+  event.preventDefault();if(busy||cooldown)return;setBusy(true);setError('');const values=new FormData(event.currentTarget);
+  try{
+   if(pendingUntil){const {user}=await api<{user:Account}>('/auth/verify-otp',{method:'POST',body:JSON.stringify({otp:values.get('otp')})});await activate(user);}
+   else{const result=await api<PendingVerification>(register?'/auth/register':'/auth/login',{method:'POST',body:JSON.stringify({email:values.get('email'),password:values.get('password'),...(register?{displayName:values.get('displayName')}:{})})});if(result.otpRequired!==true||result.method!=='development-fixed'||result.expiresIn<=0)throw new Error('Server did not request verification. Update the backend before signing in.');const now=Date.now();setClock(now);setPendingUntil(now+Math.min(result.expiresIn,300)*1000);}
+  }catch(error){failure(error);}finally{setBusy(false);}
+ };
+ const logout=async()=>{await api('/auth/logout',{method:'POST'});setAccount(undefined);setReady(false);setRegister(false);setPendingUntil(undefined);setError('');generation.current++;useHistory.setState({project:null,past:[],future:[]});};
+ const restart=async()=>{setBusy(true);try{await logout();}catch(error){failure(error);}finally{setBusy(false);}};
+ if(checking)return <main className="auth-page"><p role="status">Opening your workspace…</p></main>;
+ if(account&&ready)return children(account,logout);
+ return <main className="auth-page"><section className="auth-card"><div className="eyebrow">Cloud Architecture Planner</div><h1>{pendingUntil?'Verify your sign-in':register?'Create your account':'Welcome back'}</h1><p>{pendingUntil?'Enter the six-digit verification code.':'Your diagrams, with room to think.'}</p><form onSubmit={event=>void submit(event)}>{pendingUntil?<><label>Verification code<input key="otp" name="otp" type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required minLength={6} maxLength={6} autoFocus/></label><small>Development verification mode. This is not an authenticator-generated code.</small><p role="status">{expires?`Code step expires in ${expires}s.`:'Verification expired. Start again.'}</p></>:<>{register&&<label>Name<input name="displayName" autoComplete="name" required maxLength={100}/></label>}<label>Email<input name="email" type="email" autoComplete="email" required maxLength={254}/></label><label>Password<input name="password" type="password" autoComplete={register?'new-password':'current-password'} required minLength={12} maxLength={128}/></label><small>Use at least 12 characters.</small></>}<button className="primary" disabled={busy||cooldown>0||!!pendingUntil&&!expires}>{busy?'Please wait…':pendingUntil?'Verify and sign in':register?'Create account':'Sign in'}</button></form>{cooldown>0&&<p role="status">Try again in {cooldown}s.</p>}{pendingUntil?<button disabled={busy} onClick={()=>void restart()}>Start again</button>:<><button disabled aria-describedby="google-status">Continue with Google</button><small id="google-status">Google sign-in is coming soon.</small><button disabled={busy||cooldown>0} onClick={()=>{setRegister(!register);setError('');}}>{register?'Already have an account? Sign in':'Create an account'}</button></>}{error&&<><p role="alert">{error}</p>{!pendingUntil&&<button disabled={busy||cooldown>0} onClick={()=>void check()}>Retry connection</button>}</>}<p className="hint">Accounts and uploaded assets are stored on your configured server. Existing device projects are preserved; import their JSON to use them here.</p></section></main>;
+}

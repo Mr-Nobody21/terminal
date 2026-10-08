@@ -4,15 +4,15 @@ The same Tauri/Rust application can now be packaged for Windows x64 and Linux x6
 
 | Platform | Command on that platform | Packages | Copied installers |
 | --- | --- | --- | --- |
-| Windows x64 | `npm run build:windows` | NSIS setup `.exe`, WiX `.msi` | `release/tauri/windows/` |
-| Linux x64 | `npm run build:linux` | `.AppImage`, `.deb` | `release/tauri/linux/` |
-| Apple Silicon Mac | `npm run build:mac` | `.app`, `.dmg` | DMG in `release/tauri/` |
+| Windows x64 | `pnpm run build:windows` | NSIS setup `.exe`, WiX `.msi` | `release/tauri/windows/` |
+| Linux x64 | `pnpm run build:linux` | `.AppImage`, `.deb` | `release/tauri/linux/` |
+| Apple Silicon Mac | `pnpm run build:mac` | `.app`, `.dmg` | DMG in `release/tauri/` |
 
-`npm run build:desktop` chooses the matching native profile. The Windows/Linux commands intentionally fail on macOS before downloading or compiling incompatible toolchains. [Tauri recommends native runners](https://v2.tauri.app/distribute/pipelines/github/); its Windows MSI packaging requires Windows, and [NSIS cross-compilation has caveats](https://v2.tauri.app/distribute/windows-installer/). The Windows/Linux installers were generated and native-smoke-tested on GitHub runners; this Mac does not host Windows/Linux VMs.
+`pnpm run build:desktop` chooses the matching native profile. The Windows/Linux commands intentionally fail on macOS before downloading or compiling incompatible toolchains. [Tauri recommends native runners](https://v2.tauri.app/distribute/pipelines/github/); its Windows MSI packaging requires Windows, and [NSIS cross-compilation has caveats](https://v2.tauri.app/distribute/windows-installer/). The Windows/Linux installers were generated and native-smoke-tested on GitHub runners; this Mac does not host Windows/Linux VMs.
 
 ## Native prerequisites
 
-All platforms require Node.js 22.12+, npm, current stable Rust and the checked-in dependencies (`npm ci`). Windows requires Visual Studio Build Tools with Desktop development with C++, Windows SDK and WebView2. MSI packaging needs the VBScript optional Windows feature. See [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/).
+All platforms require Node.js 22.20+ or 24 LTS, pnpm 12.10.1, current stable Rust and the checked-in dependencies (`pnpm install --frozen-lockfile`). Windows requires Visual Studio Build Tools with Desktop development with C++, Windows SDK and WebView2. MSI packaging needs the VBScript optional Windows feature. See [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/).
 
 Windows installers are unsigned. If WebView2 is absent, the installer downloads Microsoft's bootstrapper; that initial setup requires internet access. Once installed, the manual planner workflow is local and works without credentials or network access.
 
@@ -21,8 +21,8 @@ Build Linux packages on Ubuntu 22.04 x64 with:
 ```bash
 sudo apt-get update
 sudo apt-get install -y build-essential libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils libssl-dev xvfb
-npm ci
-npm run build:linux
+pnpm install --frozen-lockfile
+pnpm run build:linux
 ```
 
 On Linux, the application uses system WebKitGTK/GTK. The DEB declares native package dependencies through Tauri. AppImage users still need a compatible Linux desktop and may need FUSE or `--appimage-extract-and-run`. Newer/older distributions and ARM builds require their own compatibility verification. Building on Ubuntu 22.04 avoids accidentally requiring a newer build host's glibc.
@@ -48,13 +48,13 @@ Changed: platform Tauri configurations, bundled ICO/PNG icons, native origin val
 Run:
 
 ```bash
-npm run lint
-npm test -- --run
-npm run build
-npm run test:packaging
-npm run test:e2e
-npm run test:rust
-npm run test:desktop
+pnpm run lint
+pnpm test --run
+pnpm run build
+pnpm run test:packaging
+pnpm run test:e2e
+pnpm run test:rust
+pnpm run test:desktop
 ```
 
 The native smoke suite checks two launches, persisted project edits, icons/diagram, absence of Node globals, and JSON/PNG/ZIP export contents. Windows/Linux use a temporary WebView data directory; macOS uses a separate test bundle identifier. Native save-panel interaction and installed-package startup still need a manual check on each new platform.

@@ -22,6 +22,8 @@ addEventListener('DOMContentLoaded', async () => {
     await until(() => fullscreenButton().getAttribute('aria-label') === 'Exit full screen');
     await window.__TAURI_INTERNALS__.invoke('set_fullscreen', { fullscreen: false });
     await until(() => fullscreenButton().getAttribute('aria-label') === 'Enter full screen');
+    document.querySelector('button[aria-label="Projects"]').click();
+    await until(() => document.querySelector('[aria-label="Project name"]'));
     const input = document.querySelector('[aria-label="Project name"]');
     const previous = localStorage.getItem('planner-native-smoke');
     if (previous && input.value !== previous) throw Error('Project did not persist across native relaunch');
@@ -33,8 +35,10 @@ addEventListener('DOMContentLoaded', async () => {
       await new Promise(r => setTimeout(r, 1200));
       await until(() => document.body.innerText.includes('Saved on this device'));
     }
+    document.querySelector('.export-trigger').click();
+    await until(() => !document.querySelector('.zen-drawer').hidden);
     for (const format of ['JSON', 'PNG', 'ZIP']) {
-      const button = [...document.querySelectorAll('button')].find(b => b.textContent === `Export ${format}`);
+      const button = [...document.querySelectorAll('button')].find(b => b.textContent === `Export ${format}` && b.getClientRects().length);
       button.click();
       await new Promise(r => setTimeout(r, 200));
       await until(() => !button.disabled);

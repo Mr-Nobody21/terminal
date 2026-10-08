@@ -9,4 +9,6 @@ export class ProjectRepository extends Dexie {
     async remove(id: string) { await this.projects.delete(id); }
     async import(text: string) { const p = importProject(text); await this.transaction('rw', this.projects, async () => { await this.save(p); }); return p; }
 }
-export const repository = new ProjectRepository();
+export let repository = new ProjectRepository();
+
+export function scopeProjectRepository(owner:string){repository.close();repository=new ProjectRepository('cloud-planner-v1:'+owner);}

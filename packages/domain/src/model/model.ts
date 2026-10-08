@@ -12,7 +12,7 @@ export const boundarySchema = z.object({ id: idSchema, name: z.string().min(1), 
 export const architectureSchema = z.object({ resources: z.array(resourceSchema), connections: z.array(connectionSchema), boundaries: z.array(boundarySchema) }).strict();
 export const variantSchema = architectureSchema.extend({ id: idSchema, name: z.enum(['Lean', 'Recommended', 'Manual']), description: z.string() }).strict();
 export const positionSchema = z.object({ x: z.number().finite(), y: z.number().finite() }).strict();
-export const projectSchema = z.object({ version: z.literal(1), id: idSchema, name: z.string().min(1), createdAt: z.string().datetime(), updatedAt: z.string().datetime(), provider: z.enum(providers), region: z.string(), requirementsText: z.string(), sources: z.array(sourceSchema), requirements: z.array(requirementSchema), assumptions: z.array(assumptionSchema), variants: z.array(variantSchema).min(1), activeVariantId: idSchema, presentation: z.object({ positions: z.record(z.string(), positionSchema) }).strict() }).strict().superRefine((p, ctx) => {
+export const projectSchema = z.object({ version: z.literal(3), costEnabled: z.boolean(), id: idSchema, name: z.string().min(1), createdAt: z.string().datetime(), updatedAt: z.string().datetime(), provider: z.enum(providers), region: z.string(), requirementsText: z.string(), sources: z.array(sourceSchema), requirements: z.array(requirementSchema), assumptions: z.array(assumptionSchema), variants: z.array(variantSchema).min(1), activeVariantId: idSchema, presentation: z.object({ positions: z.record(z.string(), positionSchema) }).strict() }).strict().superRefine((p, ctx) => {
     const error = (path: (string | number)[], message: string) => ctx.addIssue({ code: 'custom', path, message });
     if (!regions[p.provider].includes(p.region))
         error(['region'], 'Region is not supported for this provider');
@@ -40,8 +40,6 @@ export const projectSchema = z.object({ version: z.literal(1), id: idSchema, nam
             unique(r.id, [...base, 'resources', i, 'id']);
             presentationIds.add(r.id);
             const svc = serviceFor(r.provider, r.service);
-            if (r.provider !== p.provider || r.region !== p.region)
-                error([...base, 'resources', i, 'provider'], 'Resource must use project provider and region');
             if (!regions[r.provider].includes(r.region))
                 error([...base, 'resources', i, 'region'], 'Unsupported region');
             if (!r.unsupported && (!svc || svc.category !== r.category))
@@ -85,8 +83,18 @@ export type Variant = z.infer<typeof variantSchema>;
 export type Assumption = z.infer<typeof assumptionSchema>;
 export type PricingInput = z.infer<typeof pricingInputSchema>;
 export const newId = () => crypto.randomUUID();
-export function parseProject(value: unknown): Project { if (typeof value === 'object' && value !== null && 'version' in value && value.version !== 1)
-    throw new Error(`Unsupported project version ${String(value.version)}. This app supports version 1.`); return projectSchema.parse(value); }
-export function validationErrors(value: unknown) { const result = projectSchema.safeParse(value); return result.success ? [] : result.error.issues.map(i => ({ path: i.path.join('.'), message: i.message })); }
+/** Version 1 was single-cloud. Migration preserves all IDs and presentation metadata. */
+export function parseProject(value: unknown): Project {
+ if (typeof value !== 'object' || value === null || !('version' in value)) return projectSchema.parse(value);
+ if (value.version !== 1 && value.version !== 2 && value.version !== 3) throw new Error(`Unsupported project version ${String(value.version)}. This app supports versions 1, 2 and 3.`);
+ const project=projectSchema.parse(value.version === 3 ? value : {...value,version:3,costEnabled:true});
+ if(value.version===1 && (!['aws','azure','gcp'].includes(project.provider) || project.variants.some(v=>v.resources.some(r=>r.provider!==project.provider||r.region!==project.region)))) throw new Error('Invalid version 1 project: resources must use its original provider and region.');
+ return project;
+}
+export function validationErrors(value: unknown) {
+ try { parseProject(value); return []; } catch(error) {
+  return error instanceof z.ZodError ? error.issues.map(i=>({path:i.path.join('.'),message:i.message})) : [{path:'version',message:error instanceof Error ? error.message : 'Invalid project'}];
+ }
+}
 export const serializeProject = (p: Project) => JSON.stringify(parseProject(p), null, 2);
 export const importProject = (text: string) => parseProject(JSON.parse(text));

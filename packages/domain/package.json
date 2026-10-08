@@ -10,10 +10,12 @@
     "./pricing": "./src/pricing/index.ts",
     "./pricing/catalog": "./src/pricing/catalog.ts",
     "./diagram/layout": "./src/diagram/layout.ts",
-    "./commands": "./src/commands/project.ts"
+    "./commands": "./src/commands/project.ts",
+    "./drawings/model": "./src/drawings/model.ts",
+    "./drawings/assets": "./src/drawings/assets.ts"
   },
   "dependencies": {
-    "zod": "^4.1.11",
-    "elkjs": "^0.10.0"
+    "elkjs": "^0.10.2",
+    "zod": "^4.6.5"
   }
 }

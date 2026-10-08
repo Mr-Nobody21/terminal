@@ -8,3 +8,7 @@ desktop-dist/
 release/
 packages/desktop/target/
 packages/desktop/gen/
+# Backend credentials and local infrastructure secrets
+.env
+.env.*
+!.env.example
