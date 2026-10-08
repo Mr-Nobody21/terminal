@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { readdirSync,readFileSync } from 'node:fs';
 function catalogFiles(dir:string):string[]{return readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?catalogFiles(dir+'/'+e.name):e.name.endsWith('.svg')?[dir+'/'+e.name]:[]);}
 const assets=catalogFiles('backend/assets').map(path=>({key:path.slice('backend/assets'.length),mime:'image/svg+xml',content:readFileSync(path,'utf8')}));
-test.beforeEach(async({page})=>{await page.route('**/api/auth/me',route=>route.fulfill({json:{user:{id:'33333333-3333-4333-8333-333333333333',email:'test@example.com',displayName:'Test account'}}}));await page.route('**/api/assets/catalog',route=>route.fulfill({json:{assets}}));await page.route('**/api/assets',route=>route.fulfill({status:201,json:{id:'44444444-4444-4444-8444-444444444444'}}));});
+test.beforeEach(async({page})=>{await page.route('**/api/projects',route=>route.fulfill({json:{projects:[]}}));await page.route('**/api/auth/me',route=>route.fulfill({json:{user:{id:'33333333-3333-4333-8333-333333333333',email:'test@example.com',displayName:'Test account'}}}));await page.route('**/api/assets/catalog',route=>route.fulfill({json:{assets}}));await page.route('**/api/assets',route=>route.fulfill({status:201,json:{id:'44444444-4444-4444-8444-444444444444'}}));});
 import JSZip from 'jszip';
 import { sampleProject } from '@planner/domain/examples';
 import { type Provider } from '@planner/domain/providers';
@@ -25,6 +25,7 @@ test('manual example editing, persistence, history, import, and all exports', as
     await expect(page.locator('.react-flow__node-service')).toHaveCount(4);
     const node = page.locator('.react-flow__node-service').first();
     const bounds = (await node.boundingBox())!;
+    await page.screenshot({path:'test-results/architecture-before-drag.png'});
     await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
     await page.mouse.down();
     await page.mouse.move(bounds.x + bounds.width / 2 + 50, bounds.y + bounds.height / 2 + 30, { steps: 10 });
@@ -63,7 +64,7 @@ test('manual example editing, persistence, history, import, and all exports', as
     await page.getByRole('button', { name: 'Duplicate', exact: true }).click();
     await expect(page.getByRole('textbox', { name: 'Project name' })).toHaveValue('Manual acceptance (copy)');
 });
-for (const [provider, aiProvider, endpoint] of [['aws','openai','https://api.openai.com/v1'],['azure','openai','https://api.openai.com/v1'],['gcp','openai','https://api.openai.com/v1'],['aws','openrouter','https://openrouter.ai/api/v1'],['aws','groq','https://api.groq.com/openai/v1'],['aws','compatible','https://custom.example/v1']] as const) {
+for (const [provider, aiProvider, endpoint] of [['aws','openai','https://api.openai.com/v1'],['azure','openai','https://api.openai.com/v1'],['gcp','openai','https://api.openai.com/v1'],['aws','openrouter','https://openrouter.ai/api/v1'],['aws','groq','https://api.groq.com/openai/v1'],['aws','compatible','https://custom.example/v1'],['aws','local','http://localhost:1234/v1']] as const) {
     test(`mocked requirements to two ${provider} variants through ${aiProvider} and credential exclusion`, async ({ page }) => {
         await start(page);
         await openPanel(page, 'Projects');
@@ -73,6 +74,7 @@ for (const [provider, aiProvider, endpoint] of [['aws','openai','https://api.ope
         let requestCount = 0;
         await page.route(`${endpoint}/chat/completions`, async (route) => {
             requestCount++;
+            if(aiProvider==='local')expect(route.request().headers()).not.toHaveProperty('authorization');
             const body = route.request().postDataJSON() as {
                 messages: {
                     role: string;
@@ -97,7 +99,8 @@ for (const [provider, aiProvider, endpoint] of [['aws','openai','https://api.ope
         if(aiProvider === 'compatible') await page.getByRole('textbox', { name: 'AI endpoint' }).fill(endpoint);
         await expect(page.getByRole('textbox', { name: 'AI endpoint' })).toHaveValue(endpoint);
         await page.getByRole('textbox', { name: 'AI model' }).fill('mock-model');
-        await page.getByLabel('API key', { exact: true }).fill('private-test-key');
+        if(aiProvider==='local'){await expect(page.getByLabel('API key',{exact:true})).toHaveValue('');await expect(page.getByLabel('API key',{exact:true})).not.toHaveAttribute('required');await expect(page.getByText('No API key is needed for most local models.',{exact:false})).toBeVisible();}
+        else await page.getByLabel('API key', { exact: true }).fill('private-test-key');
         await page.getByRole('link', { name: 'Return to workspace' }).click();
         await openPanel(page, 'Requirements');
         await page.getByRole('button', { name: 'Extract facts & questions' }).click();
@@ -202,13 +205,13 @@ test('fullscreen button and F11 enter and exit without changing the project', as
 test('workspace controls retain their state across settings navigation', async ({ page }) => {
     await start(page);
     await openPanel(page, 'Shapes');
-    await page.getByRole('textbox', { name: 'Search services' }).fill('lambda');
+    await page.getByRole('searchbox', { name: 'Search services' }).fill('lambda');
     await page.getByText('Resources & connections', { exact: false }).click();
     await page.getByRole('textbox', { name: 'Connection label' }).fill('Custom protocol');
     await page.getByRole('link', { name: 'AI settings', exact: true }).click();
     await page.getByLabel('API key', { exact: true }).fill('session-only');
     await page.getByRole('link', { name: 'Return to workspace' }).click();
-    await expect(page.getByRole('textbox', { name: 'Search services' })).toHaveValue('lambda');
+    await expect(page.getByRole('searchbox', { name: 'Search services' })).toHaveValue('lambda');
     await expect(page.getByRole('textbox', { name: 'Connection label' })).toHaveValue('Custom protocol');
     await page.getByRole('link', { name: 'AI settings', exact: true }).click();
     await expect(page.getByLabel('API key', { exact: true })).toHaveValue('session-only');
@@ -217,7 +220,7 @@ test('contextual drawing supports search, drop, properties, history and blank va
     await start(page);
     await page.screenshot({ path: 'test-results/zen-canvas.png', fullPage: true });
     await openPanel(page, 'Shapes');
-    await page.getByRole('textbox', { name: 'Search services' }).fill('lambda');
+    await page.getByRole('searchbox', { name: 'Search services' }).fill('lambda');
     const palette = page.getByRole('complementary', { name: 'Service palette' });
     await expect(palette.getByRole('button', { name: 'Add Lambda', exact: true })).toHaveCount(1);
     await palette.getByRole('button', { name: 'Add Lambda', exact: true }).click();
@@ -257,14 +260,12 @@ test('cross-cloud palette adds five providers to one persisted architecture', as
     await start(page); await openPanel(page, 'Shapes');
     let count=4;
     for (const [provider, service] of [['Azure', 'Virtual Machines'], ['Google Cloud', 'Compute Engine'], ['AWS', 'EC2'], ['Oracle Cloud','Virtual Machine'], ['IBM Cloud','Virtual Server']] as const) {
-        await page.getByRole('combobox', { name: 'Cloud asset library' }).selectOption({ label: provider });
         await page.getByLabel('Search services').fill(service);
-        await page.getByRole('button', { name: `Add ${service}`, exact: true }).click();
+        await page.locator('.provider-results').filter({has:page.locator('summary').filter({hasText:provider})}).getByRole('button', { name: `Add ${service}`, exact: true }).click();
         await expect(page.locator('.react-flow__node-service')).toHaveCount(++count);
         await expect(page.getByText('Saved on this device', { exact: true })).toBeVisible();
         await page.getByRole('button', { name: 'Close properties' }).click();
     }
-    await page.getByRole('combobox', { name: 'Cloud asset library' }).selectOption('aws');
     await page.getByLabel('Search services').fill('accessanalyzer');
     await page.getByRole('button', {name:'Add accessanalyzer',exact:true}).click();
     await expect(page.getByRole('link',{name:'Official service reference'})).toBeVisible();
@@ -361,7 +362,7 @@ test('ER diagrams support attributes, cardinality and atomic connected-entity de
 test('infrastructure diagrams mix all seven asset libraries with no price claims', async ({ page }) => {
     await start(page); await chooseDrawing(page, 'infrastructure');
     for (const [library, asset] of [['aws', 'EC2'], ['azure', 'Virtual Machines'], ['gcp', 'Compute Engine'], ['oracle', 'Virtual Machine'], ['ibm', 'Virtual Server'], ['kubernetes', 'Pod'], ['generic', 'Server']] as const) {
-        await page.getByRole('combobox', { name: 'Asset library' }).selectOption(library);
+        await page.getByLabel('Search assets').fill(`${library} ${asset}`);
         await page.getByRole('button', { name: `Add ${asset}`, exact: true }).click();
     }
     await expect(page.locator('.react-flow__node-shape')).toHaveCount(7);
@@ -416,4 +417,104 @@ test('PNG and JPEG references persist and export as both raster formats',async({
     await page.getByLabel('Import Mermaid, XML, Excel or image').setInputFiles({name:'reference.jpeg',mimeType:'image/jpeg',buffer:Buffer.from(jpeg,'base64')});await expect(page.locator('.reference-image')).toHaveCount(2);
     for(const label of ['PNG','JPEG']){const pending=page.waitForEvent('download');await page.getByRole('button',{name:`Export ${label}`,exact:true}).click();const bytes=await readFile((await (await pending).path())!);expect(bytes[0]).toBe(label==='PNG'?137:255);}
     await expect(page.getByText('Drawing saved locally',{exact:true})).toBeVisible();await page.reload();await chooseDrawing(page,'infrastructure');await expect(page.locator('.reference-image')).toHaveCount(2);
+});
+test('dark workspace covers canvas, drawers and settings and survives reload',async({page})=>{
+ await start(page);
+ await page.getByLabel('Appearance',{exact:true}).selectOption('dark');
+ await expect(page.locator('.zen-app')).toHaveCSS('background-color','rgb(18, 25, 32)');
+ await expect(page.locator('.service-node').first()).toHaveCSS('background-color','rgb(28, 37, 48)');
+ await openPanel(page,'Shapes');await expect(page.locator('.service-palette').first()).toBeVisible();
+ await page.getByRole('link',{name:'AI settings',exact:true}).click();
+ await expect(page.locator('.zen-settings')).toBeVisible();
+ await page.reload();await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
+ await page.getByLabel('Appearance',{exact:true}).selectOption('light');
+ await expect(page.locator('html')).toHaveAttribute('data-theme','light');
+});
+test('project chooser is responsive and cross-cloud search needs no provider dropdown',async({page})=>{
+ await page.goto('/');
+ const dialog=page.getByRole('dialog');await expect(dialog).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Include cost calculations?'})).toBeFocused();
+ await page.screenshot({path:'test-results/project-choices-light.png'});
+ await page.emulateMedia({colorScheme:'dark'});await expect(dialog).toHaveCSS('background-color','rgb(28, 37, 48)');await page.screenshot({path:'test-results/project-choices-dark.png'});await page.emulateMedia({colorScheme:'light'});
+ await page.setViewportSize({width:390,height:844});
+ const bounds=await dialog.boundingBox();expect(bounds!.width).toBeLessThanOrEqual(390);
+ await expect(page.getByRole('button',{name:'Simple diagram',exact:true})).toBeVisible();
+ await page.screenshot({path:'test-results/project-choices-mobile.png'});
+ await page.setViewportSize({width:1280,height:800});
+ await page.getByRole('button',{name:'Plan with costs',exact:true}).click();await page.getByRole('button',{name:'Close panel',exact:true}).click();await openPanel(page,'Shapes');
+ await expect(page.getByLabel('Cloud asset library')).toHaveCount(0);
+ await page.getByLabel('Search services').fill('server');
+ for(const name of ['EC2','ECS / Fargate','Container Apps','Cloud Run','Virtual Server'])await expect(page.getByRole('button',{name:`Add ${name}`,exact:true})).toBeVisible();
+ await page.screenshot({path:'test-results/cross-cloud-server-search.png'});
+ await page.getByLabel('Search services').fill('Elasticsearch');await expect(page.getByRole('button',{name:'Add opensearch',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Add Databases for Elasticsearch',exact:true})).toBeVisible();
+ await page.getByLabel('Search services').fill('xyz-not-a-service');await expect(page.getByText('No matching services. Try a generic term such as server, database or storage.')).toBeVisible();
+});
+
+test('third-party tools are searchable, editable, exported and persisted',async({page})=>{
+ await start(page);await chooseDrawing(page,'infrastructure');
+ for(const [query,label] of [['MongoDB','MongoDB'],['CI','Jenkins'],['github','GitHub Actions']] as const){
+  await page.getByLabel('Search assets').fill(query);
+  await page.getByRole('button',{name:`Add ${label}`,exact:true}).click();
+ }
+ await expect(page.locator('.react-flow__node-shape')).toHaveCount(3);
+ expect(await page.locator('.drawing-node img').evaluateAll(images=>images.every(img=>(img as HTMLImageElement).naturalWidth>0))).toBe(true);
+ const exported=await drawingJson(page);
+ expect(exported.nodes.map((node:{assetId:string})=>node.assetId)).toEqual(['tools/mongodb','tools/jenkins','tools/github-actions']);
+ await expect(page.getByText('Drawing saved locally',{exact:true})).toBeVisible();
+ await page.reload();await chooseDrawing(page,'infrastructure');
+ await expect(page.locator('.react-flow__node-shape')).toHaveCount(3);
+});
+
+test('dashboard creates, searches and reopens projects with aligned responsive controls',async({page},testInfo)=>{
+ await page.route('**/api/projects',route=>route.fulfill({json:{projects:[]}}));
+ await start(page);await page.getByRole('link',{name:'Dashboard',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Projects',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'New project',exact:true}).click();
+ await page.getByLabel('New project name').fill('My clean canvas');
+ await page.getByLabel('New project provider').selectOption('gcp');
+ await page.getByRole('button',{name:'Simple diagram',exact:true}).click();
+ await expect(page.getByRole('dialog')).toHaveCount(0);
+ await expect(page.getByLabel('Diagram type')).toHaveValue('infrastructure');
+ await page.getByRole('link',{name:'Dashboard',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Open My clean canvas',exact:true})).toBeVisible();
+ await expect(page.locator('.project-card').filter({hasText:'My clean canvas'})).toContainText('Google Cloud');
+ await page.getByLabel('Find a project').fill('no such project');
+ await expect(page.getByText('No matching device projects')).toBeVisible();
+ await page.getByLabel('Find a project').fill('');
+ await page.setViewportSize({width:1440,height:1000});
+ await page.screenshot({path:'test-results/dashboard-desktop.png'});
+ const devtools=await page.context().newCDPSession(page);
+ const metrics=await devtools.send('Page.getLayoutMetrics');
+ const snapshot=await devtools.send('DOMSnapshot.captureSnapshot',{computedStyles:['padding-top','padding-left','gap','display'],includeDOMRects:true});
+ await testInfo.attach('Chrome DevTools layout review',{body:JSON.stringify({metrics,snapshot}),contentType:'application/json'});
+ expect(await page.locator('.project-card').first().evaluate(element=>getComputedStyle(element).paddingLeft)).toBe('24px');
+ await page.emulateMedia({colorScheme:'dark'});await expect(page.locator('html')).toHaveAttribute('data-theme','dark');await page.screenshot({path:'test-results/dashboard-dark.png',animations:'disabled'});
+ await page.emulateMedia({colorScheme:'light'});await expect(page.locator('html')).toHaveAttribute('data-theme','light');await page.setViewportSize({width:390,height:844});
+ await page.screenshot({path:'test-results/dashboard-mobile.png',animations:'disabled'});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ const dashboard=await page.locator('.dashboard').boundingBox();expect(dashboard!.width).toBeGreaterThan(250);
+ await page.getByRole('button',{name:'Open My clean canvas',exact:true}).click();
+ await expect(page.getByLabel('Diagram type')).toHaveValue('infrastructure');
+ await page.reload();await expect(page.getByLabel('Diagram type')).toHaveValue('infrastructure');
+ const alignment=await page.locator('.export-trigger').evaluate(element=>{const button=element.getBoundingClientRect(),icon=element.querySelector('svg')!.getBoundingClientRect();return Math.abs((button.top+button.bottom)/2-(icon.top+icon.bottom)/2);});
+ expect(alignment).toBeLessThanOrEqual(1);
+ await page.setViewportSize({width:1440,height:1000});await openPanel(page,'Shapes');
+ await page.getByLabel('Search assets').fill('CI');
+ await page.screenshot({path:'test-results/workspace-spacing.png'});
+ await page.goto('/');await expect(page.getByRole('heading',{name:'Projects',exact:true})).toBeVisible();
+});
+
+test('dashboard opens validated account snapshots and recovers account-list errors',async({page})=>{
+ const remote=sampleProject('azure');remote.name='Account architecture';
+ let unavailable=true;
+ await page.route('**/api/projects',route=>route.fulfill(unavailable?{status:503,json:{error:'Account list unavailable'}}:{json:{projects:[{id:remote.id,name:remote.name,revision:1}]}}));
+ await page.route(`**/api/projects/${remote.id}`,route=>route.fulfill({json:{document:remote,drawings:[],revision:1}}));
+ await start(page);await page.getByRole('link',{name:'Dashboard',exact:true}).click();
+ await expect(page.getByRole('alert')).toContainText('Account list unavailable');
+ await expect(page.getByRole('button',{name:'Open Web application architecture',exact:true})).toBeVisible();
+ unavailable=false;await page.getByRole('button',{name:'Refresh account projects'}).click();
+ await page.getByRole('button',{name:'Open account project Account architecture'}).click();
+ await expect(page.locator('.project-trigger')).toHaveText('Account architecture');
+ await page.getByRole('link',{name:'Dashboard',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Open Account architecture',exact:true})).toBeVisible();
 });

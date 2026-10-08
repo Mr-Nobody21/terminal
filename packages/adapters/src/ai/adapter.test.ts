@@ -60,3 +60,13 @@ it('reports exhausted provider credits without exposing the provider response', 
   const fetcher=vi.fn<typeof fetch>().mockResolvedValue(new Response('memory-secret', {status:402}));
   await expect(createAdapter({provider:'openrouter',endpoint:'https://openrouter.ai/api/v1',model:'provider/model'},'memory-secret',fetcher).request(request)).rejects.toThrow('credits');
 });
+it.each(['', '   '])('local models accept blank keys and omit Authorization', async key => {
+ const fetcher=vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({choices:[{message:{content:'{"ok":true}'}}]})));
+ await createAdapter({provider:'local',endpoint:'http://localhost:1234/v1',model:'loaded-model'},key,fetcher).request(request);
+ expect(fetcher.mock.calls[0][1]?.headers).not.toHaveProperty('Authorization');
+});
+it('local models can opt into API-key authentication', async () => {
+ const fetcher=vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({choices:[{message:{content:'{"ok":true}'}}]})));
+ await createAdapter({provider:'local',endpoint:'http://localhost:1234/v1',model:'loaded-model'},' local-key ',fetcher).request(request);
+ expect(fetcher.mock.calls[0][1]?.headers).toMatchObject({Authorization:'Bearer local-key'});
+});

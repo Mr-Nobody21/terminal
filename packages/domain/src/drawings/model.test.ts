@@ -44,3 +44,9 @@ describe('independent drawing contracts', () => {
         for (const library of assetLibraries) expect(drawingAssets.filter(a => a.library === library).length).toBeGreaterThanOrEqual(6);
     });
 });
+
+it('round-trips third-party assets without changing existing drawing contracts',()=>{
+ const drawing=createDrawing(crypto.randomUUID(),'infrastructure');
+ drawing.nodes.push({...node('asset'),assetId:'tools/mongodb',label:'MongoDB'});
+ expect(parseDrawing(JSON.parse(JSON.stringify(drawing)))).toEqual(drawing);
+});

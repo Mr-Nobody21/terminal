@@ -29,7 +29,7 @@ export function createAdapter(settings:AISettings,key:string,fetcher:typeof fetc
     let path='/chat/completions';let body:unknown={model:settings.model,messages:[{role:'system',content:instructions},{role:'user',content:input}],...(settings.jsonMode!==false?{response_format:{type:'json_object'}}:{}),...(settings.provider==='openrouter'&&settings.jsonMode!==false?{provider:{require_parameters:true}}:{})};
     if(settings.provider==='anthropic'){path='/messages';headers['x-api-key']=key;headers['anthropic-version']='2023-06-01';headers['anthropic-dangerous-direct-browser-access']='true';body={model:settings.model,max_tokens:8192,system:instructions,messages:[{role:'user',content:input}]};}
     else if(settings.provider==='gemini'){path=`/models/${encodeURIComponent(settings.model)}:generateContent`;headers['x-goog-api-key']=key;body={systemInstruction:{parts:[{text:instructions}]},contents:[{role:'user',parts:[{text:input}]}],generationConfig:{responseMimeType:'application/json'}};}
-    else if(key)headers.Authorization=`Bearer ${key}`;
+    else if(key.trim())headers.Authorization=`Bearer ${key.trim()}`;
     try {
       if(controller.signal.aborted)throw new Error('Cancelled');
       const response=await fetcher(`${settings.endpoint.replace(/\/$/,'')}${path}`,{method:'POST',headers,body:JSON.stringify(body),signal:controller.signal});

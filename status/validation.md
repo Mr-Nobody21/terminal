@@ -35,3 +35,33 @@ Canonical version 1, entity IDs, IndexedDB name, pricing formulas and AI/export 
 ## pnpm migration and dependency review — 2026-10-09
 
 Frozen pnpm install, full audit (zero advisories), lint, 117 shared tests, 6 backend unit tests, 21 actual PostgreSQL integration tests, web/backend build, 27 browser tests, 9 packaging tests and 4 deployment tests passed. Portable release generation passed; packaged production preflight correctly rejected fixed development OTP. No native rebuild or public deployment. Evidence and limitations: [dependency review](../docs/security/dependency-review-2026-10-09.md).
+
+## Dark mode — 2026-10-09
+
+pnpm lint/typecheck, 121 shared unit tests, 6 backend unit tests, web/backend builds, 29 browser scenarios, 9 packaging tests and 4 deployment tests passed. Dark login screen visually inspected in local preview. No schema or backend behavior changed; database integration was not repeated. Native/release artifacts were not rebuilt.
+
+## Frontend auth validation/local AI — 2026-10-09
+
+pnpm lint/typecheck, 163 shared unit tests, 6 backend unit tests, web/backend builds, 31 browser tests, 9 packaging tests and 4 deployment tests passed. Registration browser checks confirm invalid submissions send no request; mocked local AI extraction and variant generation succeed without Authorization. Backend-client tests cover HTTP status preservation, field errors, HTML errors, 204 responses, invalid success bodies, network failures, timeouts/cancellation and Retry-After dates. Actual backend health and PostgreSQL readiness returned HTTP 200. No backend policy or migration changes.
+
+## Catalog search and project dialog — 2026-10-09
+
+Passed lint, strict TypeScript/build, 169 shared unit tests, 32 Playwright scenarios, nine packaging checks and four deployment-script checks. Six backend unit tests passed; database integration was not repeated. Visual checks covered light/dark and narrow-screen project choices. Native binaries were not rebuilt.
+
+## Third-party tools — 2026-10-09
+
+Passed complete pnpm check: lint, strict TypeScript, 172 shared unit tests, web/backend builds, 33 browser scenarios and nine packaging checks. Four deployment checks also passed. New acceptance verifies named/CI searches, insertion, loaded SVG badges, JSON asset IDs and reload persistence. Existing database seeded successfully; live backend catalog confirmed 64 third-party assets. Native installers not rebuilt.
+
+## Workspace logout — 2026-10-09
+
+Complete pnpm check passed: lint, typecheck/build, 172 shared unit tests, six backend unit tests (15 integration tests skipped), 34 browser scenarios and nine packaging checks. Added header logout failure/retry and session-reset/reload coverage. Native installers were not rebuilt.
+
+## Dashboard, spacing and disclosures — 2026-10-09
+
+Complete pnpm check passed: lint, strict TypeScript, 173 shared unit tests, six backend unit tests (15 PostgreSQL integration tests skipped), web/backend build, 36 browser scenarios and nine packaging checks. Four deployment-script checks passed separately. Live backend accepted corrected bodyless POST logout with HTTP 200.
+
+UI review used Chromium Chrome DevTools Protocol DOMSnapshot and Page.getLayoutMetrics plus desktop, mobile and dark screenshots. Acceptance verifies project creation/provider/mode, local search/open/reload, default dashboard routing, account snapshots and recoverable account-list errors, card padding, viewport overflow and chevron alignment. Manual edit/export regression verifies dragged architecture positions. Final select-arrow specificity received an additional targeted browser check and preview rebuild. Native installers were not rebuilt.
+
+## Popup and menu consistency — 2026-10-09
+
+Complete pnpm check passed: lint, strict TypeScript, 176 shared unit tests, six backend unit tests (15 PostgreSQL integration tests skipped), web/backend builds, 43 browser scenarios, nine packaging checks and four deployment checks. DevTools Protocol layout metrics/DOM snapshots and screenshots cover desktop, mobile and dark appearance across project/account dialogs, auth, AI settings, palettes, inspectors, connections, exports and notifications. Native file choosers remain OS controlled; native installers were not rebuilt. No schema, pricing, dependency or infrastructure changes. See [review notes](../docs/product/ui-consistency.md).

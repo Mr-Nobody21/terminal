@@ -11,7 +11,7 @@ import type { ExportFormat } from '@planner/adapters/exports/artifacts';
 export function useWorkspace(keyboardHistory = true) {
     const { project, past, future, open, apply, undo, redo } = useHistory();
     const [needsProjectChoice,setNeedsProjectChoice]=useState(false);
-    const [projects, setProjects] = useState<Project[]>([]), [selected, setSelected] = useState<string>(), [message, setMessage] = useState(''), [saveStatus, setSaveStatus] = useState('Loading local projects…'), [page, setPage] = useState(location.hash === '#settings' ? 'settings' : 'workspace');
+    const [projects, setProjects] = useState<Project[]>([]), [selected, setSelected] = useState<string>(), [message, setMessage] = useState(''), [saveStatus, setSaveStatus] = useState('Loading local projects…'), [page, setPage] = useState(location.hash === '#settings' ? 'settings' : location.hash === '#workspace' ? 'workspace' : 'dashboard');
     const [requirementsCollapsed, setRequirementsCollapsed] = useState(false), [costCollapsed, setCostCollapsed] = useState(false);
     const [exporting, setExporting] = useState('');
     const [service, setService] = useState(''), [provider, setProvider] = useState<Provider>('aws'), [from, setFrom] = useState(''), [to, setTo] = useState(''), [connectionLabel, setConnectionLabel] = useState('HTTPS');
@@ -36,7 +36,7 @@ export function useWorkspace(keyboardHistory = true) {
                 setMessage('Local storage is unavailable. Keep your work by downloading project JSON.');
             }
         });
-        const route = () => setPage(location.hash === '#settings' ? 'settings' : 'workspace');
+        const route = () => setPage(location.hash === '#settings' ? 'settings' : location.hash === '#workspace' ? 'workspace' : 'dashboard');
         window.addEventListener('hashchange', route);
         return () => { cancelled = true; window.removeEventListener('hashchange', route); };
     }, [open]);

@@ -1,0 +1,213 @@
+/* Consistent overlay geometry, independent of architecture and export data. */
+:root {
+ --surface-space-xs: 8px;
+ --surface-space-sm: 12px;
+ --surface-space-md: 16px;
+ --surface-space-lg: 24px;
+ --surface-radius: 14px;
+ --surface-control-height: 40px;
+}
+.zen-app :is(.zen-drawer,.service-palette,.properties-panel,.more-tools-content,.connections),
+.project-mode-dialog,.auth-card,.settings-panel {
+ scrollbar-gutter: stable;
+ overscroll-behavior: contain;
+ overflow-wrap: anywhere;
+}
+.zen-app .zen-drawer {
+ width: 376px;
+ padding: var(--surface-space-lg);
+ border-radius: var(--surface-radius);
+ max-height: calc(100dvh - 156px);
+}
+.zen-app .zen-drawer h2 { margin:0 0 20px; line-height:1.4; padding-right:32px; }
+.zen-app .drawer-close {
+ display:grid; place-items:center;
+ width:32px; height:32px; min-height:32px;
+ top:16px; right:16px; padding:0;
+ line-height:1; font-size:22px; border-radius:8px;
+}
+.zen-app .drawer-close:hover { background:var(--theme-subtle,#f3f5f9); }
+.zen-app :is(.zen-drawer,.properties-panel,.more-tools-content,.connections) button {
+ min-height:var(--surface-control-height);
+ padding:9px 12px; line-height:1.4;
+ white-space:normal;
+}
+.zen-app :is(.zen-drawer,.properties-panel) .drawer-close { min-height:32px; padding:0; }
+.zen-app :is(.zen-drawer,.properties-panel) label {
+ display:grid; gap:8px; margin:0 0 16px; width:100%; min-width:0;
+}
+.zen-app :is(.zen-drawer,.properties-panel) label > :is(input,select,textarea),
+.zen-app .connection-builder :is(input,select) {
+ width:100%; min-width:0; min-height:var(--surface-control-height);
+ margin:0; padding-top:10px; padding-bottom:10px; font-size:12px;
+}
+.zen-app :is(.zen-drawer,.properties-panel) label:has(> input[type="checkbox"]) {
+ display:flex; align-items:center; gap:10px;
+}
+.zen-app :is(.zen-drawer,.properties-panel) label > input[type="checkbox"] {
+ width:16px; height:16px; min-height:16px; padding:0; margin:0; flex-shrink:0;
+}
+.zen-app .zen-drawer .project-bar { gap:16px; }
+.zen-app .zen-drawer .project-bar label { min-width:0; margin:0; }
+.zen-app .account-panel {
+ padding:16px; margin:0 0 24px; border:0; border-radius:10px;
+ background:var(--theme-subtle,#f3f5f9);
+}
+.zen-app .account-panel h3 { margin:0 0 8px; font-size:14px; }
+.zen-app .account-panel p { margin:0 0 12px; line-height:1.6; }
+.zen-app .account-panel .toolbar {
+ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:16px 0 0;
+}
+.zen-app .account-panel .toolbar > span { grid-column:1/-1; }
+.zen-app .account-panel .toolbar > button { width:100%; font-size:12px; }
+.zen-app .account-panel .toolbar > button:nth-child(3) { grid-column:1/-1; }
+.zen-app .zen-drawer .dashboard-link { margin:0 0 24px; }
+.zen-app .zen-drawer .export-grid { gap:12px; margin:0 0 16px; }
+.zen-app .export-grid button { font-size:12px; }
+.zen-app .interchange-import,.zen-app .drawing-import {
+ padding:16px; border:1px solid var(--theme-border,#d9e0eb); border-radius:10px;
+ gap:12px; margin:24px 0 16px; line-height:1.5;
+}
+.zen-app input[type="file"] { min-width:0; width:100%; padding:8px; font-size:11px; overflow:hidden; }
+.zen-app input[type="file"]::file-selector-button {
+ border:1px solid var(--theme-border,#d9e0eb); border-radius:6px;
+ padding:7px 9px; margin-right:8px; background:var(--theme-subtle,#f3f5f9); color:inherit;
+}
+.zen-app .contextual-editor :is(.service-palette,.properties-panel) {
+ width:288px; max-width:calc(100vw - var(--rail-width) - 32px);
+ padding:20px; border-radius:var(--surface-radius);
+}
+.zen-app .contextual-editor :is(.service-palette,.properties-panel) > h3 {
+ margin:0 0 20px; padding-right:32px; font-size:15px; line-height:1.4;
+}
+.zen-app .contextual-editor .properties-panel .inspector h3 {
+ font-size:12px; color:var(--theme-muted,#61718a); margin:0 0 16px;
+}
+.zen-app .contextual-editor .properties-panel .inspector label { margin:0 0 16px; }
+.zen-app .properties-panel .quick-input { margin-top:0!important; }
+.zen-app .properties-panel .quick-input small { float:none; }
+.zen-app .properties-panel .advanced-properties { padding:12px 0 0; margin:20px 0 0; }
+.zen-app .properties-panel details[open] > summary { margin-bottom:16px; }
+.zen-app .properties-panel fieldset { padding:16px; margin:20px 0; border-radius:10px; }
+.zen-app .properties-panel legend { padding:0 6px; font-size:12px; }
+.zen-app .properties-panel fieldset label:last-child { margin-bottom:0; }
+.zen-app .service-palette > input[type="search"] {
+ min-height:40px; padding:10px 12px; font-size:12px; margin:0 0 12px;
+}
+.zen-app .service-palette > .hint { margin:0 0 12px; line-height:1.6; }
+.zen-app .service-palette .palette-grid { gap:8px; margin:8px 0 16px; }
+.zen-app .service-palette .palette-service { min-height:88px; padding:12px 6px; gap:8px; }
+.zen-app .provider-results > summary { padding:12px 0; margin-bottom:0; min-height:40px; }
+.zen-app .more-tools-content {
+ padding:16px; gap:8px; width:272px;
+ max-width:calc(100vw - var(--rail-width) - 32px);
+ max-height:calc(100dvh - 208px); overflow:auto; bottom:48px; border-radius:12px;
+}
+.zen-app .more-tools-content > button { text-align:left; }
+.zen-app .connection-builder { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; padding:12px 0; }
+.zen-app .more-tools-content .connection-builder { padding:8px 0 0; }
+.zen-app .connections {
+ padding:8px 16px; max-width:calc(100vw - var(--rail-width) - 32px);
+ max-height:calc(100% - 160px); border-radius:12px;
+}
+.zen-app .connections[open] { width:352px; padding:16px; }
+.zen-app .connections > summary { min-height:32px; padding:4px 0; margin:0; font-size:12px; }
+.zen-app .connections[open] > summary { padding-bottom:12px; border-bottom:1px solid var(--theme-border,#d9e0eb); }
+.zen-app .connections .resource-list { display:flex; gap:8px; margin:16px 0; }
+.zen-app .connections button { margin:0; font-size:12px; }
+.zen-app .connections > button { display:block; width:100%; text-align:left; margin-top:8px; }
+.zen-app .drawing-connection-row { gap:8px; margin-top:8px; }
+.zen-app .zen-drawer .cost-panel summary { font-size:12px; gap:10px; line-height:1.5; }
+.zen-app .cost-panel summary strong { flex-shrink:0; float:none; text-align:right; }
+.zen-app .cost-panel .price-detail { padding:12px 0; font-size:11px; line-height:1.6; }
+.zen-app .cost-panel .price-detail p { margin:0 0 8px; }
+.zen-app .requirements-panel .ai-controls { gap:12px; margin:20px 0; }
+.zen-app .requirements-panel textarea { min-height:160px; }
+.zen-app .requirements-panel :is(.requirement,.assumption) { padding-left:12px; margin-bottom:20px; }
+.zen-app .zen-settings .settings-panel {
+ width:calc(100% - 48px); max-width:640px; margin:32px auto; padding:32px;
+ display:grid; gap:16px; border-radius:var(--surface-radius);
+}
+.zen-app .settings-panel > :is(h2,p,label) { margin:0; }
+.zen-app .settings-panel h2 { font-size:22px; }
+.zen-app .settings-panel label { display:grid; gap:8px; min-width:0; }
+.zen-app .settings-panel label > :is(input,select) { margin:0; min-height:40px; padding-top:10px; padding-bottom:10px; }
+.zen-app .settings-panel .json-mode { display:flex; gap:10px; align-items:center; }
+.zen-app .settings-panel .json-mode input { width:16px; height:16px; min-height:16px; }
+.zen-app .settings-panel .privacy { padding:16px; background:var(--theme-subtle,#f3f5f9); border-radius:10px; line-height:1.7; font-size:12px; }
+.zen-app .settings-panel > button { min-height:40px; justify-self:start; }
+.project-mode-dialog .project-create-fields { gap:16px; margin:24px 0; }
+.project-mode-dialog .project-create-fields label { display:grid; gap:8px; margin:0; }
+.project-mode-dialog .project-create-fields :is(input,select) { margin:0; min-height:40px; }
+.project-mode-dialog .project-mode-options { gap:16px; }
+.auth-card { padding:32px; gap:16px; }
+.auth-card form { gap:16px; }
+.auth-card :is(input,button) { min-height:40px; }
+.auth-card .field-error { margin:0; }
+.zen-app .notice { align-items:center; padding:12px 16px; line-height:1.5; }
+.zen-app .notice > button { width:32px; height:32px; min-height:32px; flex-shrink:0; padding:0; }
+@media(max-width:600px) {
+ .zen-app .zen-drawer { left:calc(var(--rail-width) + 12px); max-width:calc(100vw - var(--rail-width) - 24px); max-height:calc(100dvh - 144px); padding:20px; }
+ .zen-app .contextual-editor :is(.service-palette,.properties-panel) { padding:20px; }
+ .zen-app .contextual-editor .connections { right:12px; bottom:80px; }
+ .zen-app .connections[open] { padding:16px; }
+ .zen-app .zen-settings .settings-panel { width:calc(100% - 24px); margin:20px 12px; padding:20px; }
+ .zen-app .settings-panel .privacy { padding:12px; }
+ .project-mode-dialog .project-create-fields { grid-template-columns:1fr; }
+ .auth-page { padding:64px 20px 24px; }
+ .auth-card { padding:24px; }
+}
+@media(max-height:650px) {
+ .zen-app .zen-drawer { top:84px; max-height:calc(100dvh - 100px); }
+ .zen-app .more-tools-content { max-height:calc(100dvh - 160px); }
+}
+.account-icon { display:none; }
+.project-trigger .project-name { min-width:0; overflow:hidden; text-overflow:ellipsis; color:inherit; }
+@media(max-width:600px) {
+ .zen-app .zen-header { height:112px; min-height:112px; padding:12px 16px; gap:8px 12px; }
+ .zen-app .header-actions { gap:4px; }
+ .zen-app .header-actions > button { flex-shrink:0; min-height:36px; padding:7px 8px; white-space:nowrap; }
+ .zen-app .header-actions .theme-control select { max-width:96px; min-height:36px; padding-right:28px; background-position:right 7px center; }
+ .zen-app .header-actions .estimate-trigger { display:none; }
+ .zen-app .header-actions .account-trigger,.zen-app .header-actions .fullscreen-control { display:grid; place-items:center; width:32px; padding:0; }
+ .zen-app .account-name { display:none; }
+ .zen-app .account-icon { display:flex; align-items:center; }
+ .zen-app .export-trigger { gap:6px; }
+ .zen-app .zen-nav { top:112px; }
+ .zen-app :is(.zen-workspace,.zen-settings,.dashboard) { top:112px; }
+ .zen-app .zen-drawer { top:128px; max-height:calc(100dvh - 152px); }
+ .zen-app .zen-notice { top:120px; }
+}
+@media(max-width:600px) {
+ .zen-app .contextual-editor .properties-panel:not([hidden]) { bottom:144px; max-height:calc(100% - 224px); }
+}
+/* An expanded connection menu must remain clickable above the selected-item inspector. */
+.zen-app .connections[open] { z-index:10; }
+.zen-app .canvas-toolbar:has(.more-tools[open]) { z-index:11; }
+.zen-app :is(.zen-drawer,.service-palette,.properties-panel,.more-tools-content,.connections) { background:var(--theme-surface,#fff); }
+.confirmation-dialog {
+ width:min(440px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); overflow:auto;
+ padding:24px; margin:auto; border:1px solid var(--theme-border,#d9e0eb);
+ border-radius:14px; color:var(--theme-text,#263a54); background:var(--theme-surface,#fff);
+ box-shadow:0 24px 80px #152a2430;
+}
+.confirmation-dialog::backdrop { background:#18262055; backdrop-filter:blur(3px); }
+.confirmation-dialog h2 { font-size:20px; line-height:1.4; margin:0 0 16px; }
+.confirmation-dialog p { margin:0 0 24px; line-height:1.6; overflow-wrap:anywhere; }
+.confirmation-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:12px; }
+.confirmation-actions button { min-height:40px; padding:9px 16px; }
+.confirmation-actions .danger { border-color:var(--theme-danger,#b83648); background:var(--theme-danger-soft,#fff3f3); }
+/* Notifications reserve space rather than covering a dialog trigger or close control. */
+.zen-app { --app-header-height:64px; }
+.zen-app :is(.zen-workspace,.zen-settings,.dashboard) { top:calc(var(--app-header-height) + var(--notice-space,0px)); }
+.zen-app .zen-notice { top:calc(var(--app-header-height) + 12px); max-height:25dvh; overflow:auto; margin:0; }
+.zen-app .zen-notice > span { min-width:0; }
+.zen-app .zen-drawer { top:calc(var(--app-header-height) + 68px + var(--notice-space,0px)); max-height:calc(100dvh - var(--app-header-height) - 84px - var(--notice-space,0px)); }
+.zen-app .more-tools-content { max-height:calc(100dvh - var(--app-header-height) - var(--notice-space,0px) - 112px); }
+@media(max-width:600px) {
+ .zen-app { --app-header-height:112px; }
+ .zen-app .zen-drawer { top:calc(var(--app-header-height) + 16px + var(--notice-space,0px)); max-height:calc(100dvh - var(--app-header-height) - 32px - var(--notice-space,0px)); }
+}
+@media(min-width:601px) and (max-height:650px) {
+ .zen-app .zen-drawer { top:calc(var(--app-header-height) + 20px + var(--notice-space,0px)); max-height:calc(100dvh - var(--app-header-height) - 36px - var(--notice-space,0px)); }
+}

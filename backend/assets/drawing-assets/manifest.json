@@ -124,5 +124,389 @@
     "upstream": "Database - Autonomous DB",
     "retrieved": "2026-10-08",
     "sha256": "c734a5b7ed133bd41407d8d0038e2610e80b7870c138ecb9003a6549014eb7a0"
+  },
+  {
+    "id": "tools/mongodb",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "e9d556a33141ca72c827991dcf30cf4443fc6d3bbe814e0a0f84fec3b625c31d"
+  },
+  {
+    "id": "tools/postgresql",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "535dc76ac7ecdae611ee9704b49a0b9f32572b398fd2bd0639d558b01f87c5ea"
+  },
+  {
+    "id": "tools/mysql",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "56bba954dc0f1276af0a29e2bb8f1455787b0eb02ad325811f468032a6a5fe13"
+  },
+  {
+    "id": "tools/redis",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "50f3ac425cc47d707854dc591eaff1d42fca8106ffc78dac0df0a4c7ab6c6132"
+  },
+  {
+    "id": "tools/elasticsearch",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "f9a7debc398643051fecafa0f274525baef7d62fb09afb9d3c25762a4554f607"
+  },
+  {
+    "id": "tools/opensearch",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "1d279dc87a360059c27e5688280374ed5b17669b3e3d6b9e888d296c68337e06"
+  },
+  {
+    "id": "tools/sqlite",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "4a4a45bea7bf0ae15fbb80dc6ad0b3d2486f98468a0559e9d11c769b434f46a2"
+  },
+  {
+    "id": "tools/clickhouse",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "9153f77adcfc15d379cbbf060ca88bb242449bf571c275e803e388474ab1641b"
+  },
+  {
+    "id": "tools/neo4j",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "5996e347a70a2b12a0b1155fdae34b69788b42eb8779ef04c054b520f5ac099b"
+  },
+  {
+    "id": "tools/cassandra",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "297d3e0d0b5454dc0c4123876bd80bb1e3a2d4d52ffed1c9a1a596ee3adbc808"
+  },
+  {
+    "id": "tools/kafka",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "219aff442e8dbb998bd44260d92117ff0a22deaa8d40fbce6d3c287434f150d1"
+  },
+  {
+    "id": "tools/rabbitmq",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "025f93a82442e5ef029f6db22b5c85248af7848beb424a5dab1124d23c97798b"
+  },
+  {
+    "id": "tools/nats",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "cdd4a426fb7f36b5dc31c8accfe75a0f3571e60d52ad9ea223f4e27b9a81b4f2"
+  },
+  {
+    "id": "tools/github",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "3866f594b795a42e86c49127780c3ebfd4b2c02e8328ac5cfc155eaf8879c742"
+  },
+  {
+    "id": "tools/github-actions",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "6d757aa963577710fff226bfb59954c398798a094ea47e101689e014651759d3"
+  },
+  {
+    "id": "tools/gitlab",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "e5844285c850d09c42079ea1640b19b17989154046b1882e9484900991b72c2b"
+  },
+  {
+    "id": "tools/bitbucket",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "027f6c5e02e0ad82992887b7195791acbefecff239eede7f6a02bff279d7ca43"
+  },
+  {
+    "id": "tools/jenkins",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "62b77c83cd1ba4d17d2584de124892aadcf842056116813fbaf68a33d693952d"
+  },
+  {
+    "id": "tools/circleci",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "c8fd17b6507db29bae52f448ba9404fd1b10c15876b4b0ba298c26f6be9a6b6d"
+  },
+  {
+    "id": "tools/buildkite",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "1c76ea50b44fc330c3588f11348dcedfd37f3dca80b937de7380e86b76bf07ab"
+  },
+  {
+    "id": "tools/argocd",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "bf11f21753abd72449cf99dffb040584ae921c012a7519be9651a57c4cd88979"
+  },
+  {
+    "id": "tools/flux",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "f62383bd9bc323047d090a6b9d588f777a711cf506531daf58b0a5b0f91675f7"
+  },
+  {
+    "id": "tools/tekton",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "3cda4a2bd03d87f4ac25b8a09cd115ab1d7f4abdbe7892e67396e9a6e2f6ffb1"
+  },
+  {
+    "id": "tools/sonarqube",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "57ad82c73d061b9a007e99c8e8ccf6ed7a16e3b390a1973bfb81db44b16e1720"
+  },
+  {
+    "id": "tools/nexus",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "46b585712c1bd2c6811e6fdf360f7dbd21dc7f9282d357c6385d368528447fc8"
+  },
+  {
+    "id": "tools/artifactory",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "521724481bb12474cf63b07020747cc603e442326ed1c7989346cd28120bf46c"
+  },
+  {
+    "id": "tools/docker",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "a7752bc8df921191bb9ddeb38e2743a81b4f97abcb704ebad3a2080561427b70"
+  },
+  {
+    "id": "tools/terraform",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "5406f743b9265a5e3e10a6535266ccea29cc9fe895097275fa0d51c4282c0588"
+  },
+  {
+    "id": "tools/opentofu",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "26d4d26b64ea06008a835888d5ebc86f7d9241711600e83ac24d54cb2a10b952"
+  },
+  {
+    "id": "tools/ansible",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "484418c22d2a9bf0027082f712177a4c1a58e3c8117f1a44bd0487a1fa68694f"
+  },
+  {
+    "id": "tools/pulumi",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "9e45607de2ee8bb8c70274c335a184f5222af33c38173f9158b0fff03833c784"
+  },
+  {
+    "id": "tools/helm",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "fafc6cc2e4fe6435b3de230f55f2f8687fa22f135d362e9be1fa1097c5c9d40a"
+  },
+  {
+    "id": "tools/vault",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "f23a17cfb71e1c3dfc74c6531cd62932d82153929f3b2cdaf1f1dccebf484f47"
+  },
+  {
+    "id": "tools/consul",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "c00f774e137f4b9ccdcdf561e2dba3bd12c77b8a132e9caae832c38a9694c0c5"
+  },
+  {
+    "id": "tools/nginx",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "4e628d325c865ce61633d6540277036f523570e8a5da6b7a326aa2792e1b32cf"
+  },
+  {
+    "id": "tools/traefik",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "9707c7a45b06577120e7363f091373930d02655bee4439ed3783b75af24ce086"
+  },
+  {
+    "id": "tools/haproxy",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "138a70143e10292c32ac6ab0576b68eae7d61210ad7b6eb0d820ebe32cb96763"
+  },
+  {
+    "id": "tools/istio",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "afbe6bbe445e783a78136683e23c64da2359684e09bc6e8fe5c3791b191ab98d"
+  },
+  {
+    "id": "tools/envoy",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "7324b0ca699833ccbba938735270e205974e7537fc8c5817cbc21f98d72fbf17"
+  },
+  {
+    "id": "tools/prometheus",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "22142d1232955d1e3bab96e26292da770cd6dc1cef9f55cf2be5c98068324acb"
+  },
+  {
+    "id": "tools/grafana",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "faa9c53798b8161bcf667b483000147fa18d6b0f32a8fc58bf1135428bb312e6"
+  },
+  {
+    "id": "tools/loki",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "93e1787de0b6491077bac60f4f728da848619b5742ebd67cb2a6988ffba02b70"
+  },
+  {
+    "id": "tools/opentelemetry",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "8028f9b72b61f288317c6a20e72dcd8dee19300efcdca04ef9fa6aea25a78509"
+  },
+  {
+    "id": "tools/jaeger",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "c152ffaa97933f5434f84236ae9865dac3c266121321d06e2b7a8bbedcb0128d"
+  },
+  {
+    "id": "tools/datadog",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "2dfa37dcf70ac9bef8a4cc124e73524218a34909ac5cdbdc669334add1441f98"
+  },
+  {
+    "id": "tools/newrelic",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "b719f9eb04cb2c1ba4ae3346053a89dd0f70ea866166b4d2d9d79524aa78fc0c"
+  },
+  {
+    "id": "tools/sentry",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "be007a225664fd99fcd7772b2e7a6518f7d251e7b8fccfb447b171e8502b4388"
+  },
+  {
+    "id": "tools/splunk",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "ffd0c27313500d3352ad33903cc36544d9cc5d90649fb6e5af1cccf31712f998"
+  },
+  {
+    "id": "tools/fluentbit",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "389f211ad277c5f04d3e702f5ff520a8976dc4eefd0fea70b1a55942fd0c4208"
+  },
+  {
+    "id": "tools/keycloak",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "4eb10abca5d3390dcab68e164f0e202bee4cd36133bc1bf5851c1d17539b0c61"
+  },
+  {
+    "id": "tools/auth0",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "6c709b48a1dd6a8a46c15365472f7e6bbe0652f0b62da2dfe0055f0529d0ea17"
+  },
+  {
+    "id": "tools/okta",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "ffd8f10e7951e2ec7220329e89fffdaeb492507b19e0179eb5e69768fab3b79a"
+  },
+  {
+    "id": "tools/cloudflare",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "ea34db9a412a5ad0784602255ad140558683acf9e2bb4aea52d15e63a5b9e7ab"
+  },
+  {
+    "id": "tools/vercel",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "7b7d25c6786bc9079a2a8a351176cbc2fc40aec7df1c1d42d8410fc1d7bff481"
+  },
+  {
+    "id": "tools/netlify",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "f1ff76bb9c147d9ddf4974710e5cacd3878531a1ff5464d7445d7562073f772e"
+  },
+  {
+    "id": "tools/supabase",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "f8402986419bd662d903777dfba5861d13b5a32afddf364992783ba5dfde8a77"
+  },
+  {
+    "id": "tools/minio",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "563da46746c339b33fb85254d95c79192ad91465248e2305f6a592bad5482431"
+  },
+  {
+    "id": "tools/airflow",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "bd6480906a446c20062758cd56698d5a183c6504ec7e190a67785acdbc035127"
+  },
+  {
+    "id": "tools/spark",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "dfdac29470f408f4408873c45d70c2038b493c35fbf787faa7a68678fc945ab1"
+  },
+  {
+    "id": "tools/dbt",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "5f9eb991dde389b0b65e45d0eec441c07fce9fb399a1bd68a4fcabce4dfe9aa9"
+  },
+  {
+    "id": "tools/mlflow",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "57fbc1e1951bd833a79b6df20ed2dd9d1fdaab19d8845fb7e2066472f29ab19e"
+  },
+  {
+    "id": "tools/ollama",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "51c0913a88c6b384ffc3096e1a50d2c70ce314c2a8bb33e2babb9f8153dbca6d"
+  },
+  {
+    "id": "tools/huggingface",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "6e361225c75099d5527b2a10c57a3c6749949fe5dd23de51f913f7b5584d2789"
+  },
+  {
+    "id": "tools/jupyter",
+    "source": "original project artwork",
+    "upstream": "Original text badge; not an official vendor logo",
+    "sha256": "a4d4a22e3f6bcab84e0bddf1c0a3f9976a5e107a22d97f732f95653d62eaf327"
   }
 ]

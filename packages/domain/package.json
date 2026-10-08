@@ -12,7 +12,8 @@
     "./diagram/layout": "./src/diagram/layout.ts",
     "./commands": "./src/commands/project.ts",
     "./drawings/model": "./src/drawings/model.ts",
-    "./drawings/assets": "./src/drawings/assets.ts"
+    "./drawings/assets": "./src/drawings/assets.ts",
+    "./search": "./src/search/catalog.ts"
   },
   "dependencies": {
     "elkjs": "^0.10.2",

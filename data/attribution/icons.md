@@ -18,3 +18,7 @@ Retrieved 2026-10-08. Selected source paths, pinned IBM/Kubernetes commits and s
 - Generic infrastructure: six original project SVG symbols for server, database, user, internet, firewall and queue. No vendor affiliation.
 
 The importer uses development-time downloads only. Runtime palettes use the database catalog cache; exports embed icon data.
+
+## Third-party tools
+
+The 64 tool badges in `backend/assets/drawing-assets/tools` are original project text artwork, not vendor logos. Product names identify diagram components; they do not imply affiliation. The manifest records source and SHA-256. These SVGs follow the same database seed, catalog-cache and embedded-export paths as other assets.

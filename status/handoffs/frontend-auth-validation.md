@@ -1,0 +1,11 @@
+# Frontend credentials, HTTP errors and local AI — 2026-10-09
+
+Changed AuthGate and its new pure validation module/tests; bundled a pinned CC0 disposable-email domain snapshot with source revision, checksum and license; declared the UI's existing Zod dependency; updated pnpm lock; improved shared backend client/error tests and local AI settings/adapter tests; added registration and unauthenticated local-model browser scenarios; updated product and status documentation.
+
+Decisions: new disposable-domain and password-strength checks are frontend-only, as requested. Registration rejects disposable addresses and known common/repetitive passwords; sign-in preserves compatibility with existing accounts. Password length remains 12–128 characters, matching the server; valid passphrases need no forced character composition. Validation errors are accessible and invalid submissions issue no requests. No backend authentication policy, schema or migration changed.
+
+HTTP errors retain status, parsed field errors and retry guidance. HTML/proxy errors get useful fallbacks; empty 204 success is supported; malformed 200 JSON responses fail explicitly while retaining their received status; network/cancellation/timeouts use status 0. Retry connection is offered for connection/service failures, not local form validation. Local keys are optional and empty/whitespace keys never add Authorization; explicit optional keys remain supported.
+
+Validation: lint/typecheck and web/backend builds passed; 163 shared unit tests, 6 backend unit tests, 31 browser scenarios, 9 packaging tests and 4 deployment tests passed. Repeated the 16 backend-client tests after the final fallback-message refinement. Backend started with pnpm and both `/api/health` and `/api/ready` returned HTTP 200 on 127.0.0.1:3001, including real PostgreSQL connectivity.
+
+Known limitations: community disposable lists may become stale or miss new domains; these browser checks are bypassable and do not prove email ownership. The common-password list is deliberately small, not a comprehensive breached-password service. Existing development OTP production block and bundle/annotation warnings remain. Native installers and deployment artifact folders were not regenerated. Next: real MFA and email ownership verification before public production use.

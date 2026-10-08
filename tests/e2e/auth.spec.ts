@@ -22,3 +22,51 @@ test('throttled logins show cooldown and expired OTP steps can be restarted',asy
  await page.route('**/api/**',route=>{const path=new URL(route.request().url()).pathname;if(path==='/api/auth/me')return route.fulfill({status:401,json:{error:'Sign in required'}});if(path==='/api/auth/login'){attempts++;return attempts===1?route.fulfill({status:429,headers:{'Retry-After':'2'},json:{error:'Too many attempts'}}):route.fulfill({json:{otpRequired:true,expiresIn:1,method:'development-fixed'}});}if(path==='/api/auth/verify-otp'){verifications++;return route.fulfill({status:401,json:{error:'Expired'}});}if(path==='/api/auth/logout')return route.fulfill({json:{ok:true}});return route.fulfill({status:404});});
  await page.goto('/');await page.getByLabel('Email',{exact:true}).fill('otp@example.com');await page.getByLabel('Password',{exact:true}).fill('a long password phrase');await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Too many');await expect(page.getByRole('button',{name:'Sign in',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'Sign in',exact:true})).toBeEnabled({timeout:5000});await page.getByRole('button',{name:'Sign in',exact:true}).click();await expect(page.getByRole('heading',{name:'Verify your sign-in'})).toBeVisible();await expect(page.getByText('Verification expired. Start again.',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Verify and sign in'})).toBeDisabled();await page.getByRole('button',{name:'Start again'}).click();await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();expect(verifications).toBe(0);
 });
+test('login appearance follows the system and remembers an explicit preference',async({page})=>{
+ await page.emulateMedia({colorScheme:'dark'});
+ await page.route('**/api/auth/me',route=>route.fulfill({status:401,json:{error:'Sign in required'}}));
+ await page.goto('/');
+ await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
+ await expect(page.locator('.auth-card')).toHaveCSS('background-color','rgb(28, 37, 48)');
+ await page.getByLabel('Appearance',{exact:true}).selectOption('light');
+ await page.reload();
+ await expect(page.locator('html')).toHaveAttribute('data-theme','light');
+ await page.getByLabel('Appearance',{exact:true}).selectOption('system');
+ await page.emulateMedia({colorScheme:'light'});
+ await expect(page.locator('html')).toHaveAttribute('data-theme','light');
+ await page.emulateMedia({colorScheme:'dark'});
+ await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
+});
+test('client registration validation blocks requests and announces field errors',async({page})=>{
+ let registrations=0;
+ await page.route('**/api/auth/me',route=>route.fulfill({status:401,json:{error:'Sign in required'}}));
+ await page.route('**/api/auth/register',route=>{registrations++;return route.fulfill({status:409,json:{error:'Unable to create account with these details'}});});
+ await page.goto('/');await page.getByRole('button',{name:'Create an account',exact:true}).click();
+ await page.getByLabel('Name',{exact:true}).fill('New user');await page.getByLabel('Email',{exact:true}).fill('test@YOPMAIL.COM');await page.getByLabel('Password',{exact:true}).fill('password123456');
+ await page.getByRole('button',{name:'Create account',exact:true}).click();
+ await expect(page.locator('#email-error')).toContainText('permanent email');await expect(page.locator('#password-error')).toContainText('unique passphrase');
+ await expect(page.getByLabel('Email',{exact:true})).toBeFocused();expect(registrations).toBe(0);
+ await page.getByLabel('Email',{exact:true}).fill('not-an-email');await page.getByLabel('Password',{exact:true}).fill('a unique long passphrase');await page.getByRole('button',{name:'Create account',exact:true}).click();await expect(page.locator('#email-error')).toContainText('valid email');expect(registrations).toBe(0);
+ await page.getByLabel('Email',{exact:true}).fill('person@gmail.com');await page.getByRole('button',{name:'Create account',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Unable to create account');expect(registrations).toBe(1);
+});
+
+test('header logout handles failure, retries and ends the session',async({page})=>{
+ let signedIn=true,attempts=0;
+ const user={id:'99999999-9999-4999-8999-999999999999',email:'logout@example.com',displayName:'Logout test'};
+ await page.route('**/api/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path==='/api/auth/me')return route.fulfill({status:signedIn?200:401,json:signedIn?{user}:{error:'Sign in required'}});
+  if(path==='/api/assets/catalog')return route.fulfill({json:{assets}});
+  if(path==='/api/auth/logout'){
+   expect(route.request().method()).toBe('POST');
+   if(++attempts===1)return route.fulfill({status:503,json:{error:'Logout unavailable. Please retry.'}});
+   signedIn=false;return route.fulfill({json:{ok:true}});
+  }
+  return route.fulfill({status:404,json:{error:'Not found'}});
+ });
+ await page.goto('/');await page.getByRole('button',{name:'Simple diagram',exact:true}).click();
+ const logout=page.getByRole('button',{name:'Log out',exact:true});
+ await logout.click();await expect(page.getByRole('alert')).toContainText('Logout unavailable');await expect(logout).toBeEnabled();
+ await logout.click();await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();
+ await page.reload();await expect(page.getByRole('heading',{name:'Welcome back'})).toBeVisible();
+});

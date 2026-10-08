@@ -1,13 +1,15 @@
+import { searchServices, searchAssets, serviceKey, resolveService } from '@planner/domain/search';
 import { assetUrl } from '@planner/adapters/backend/assets';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import type { LoadedWorkspace } from '../../app/useWorkspace';
 import { activeVariant, commit, newId } from '@planner/domain/model';
 import { makeResource } from '@planner/domain/examples';
-import { categories, inventorySources, services, serviceFor, providers, type Provider } from '@planner/domain/providers';
-import { assetLibraries, drawingAssets, libraryNames, type AssetLibrary } from '@planner/domain/drawings/assets';
+import { inventorySources, services, providers } from '@planner/domain/providers';
+import { assetLibraries, libraryNames, type AssetLibrary } from '@planner/domain/drawings/assets';
 import { Diagram } from '../diagram/Diagram';
 import { Inspector } from './Inspector';
-export function ArchitecturePanel({ workspace, shapesOpen, onCloseShapes, onOpenInfrastructure }: {
+export function ArchitecturePanel({ workspace, shapesOpen, onCloseShapes, onOpenInfrastructure, active = true }: {
+    active?: boolean;
     onOpenInfrastructure: (library: AssetLibrary) => void;
     shapesOpen: boolean;
     onCloseShapes: () => void;
@@ -17,15 +19,16 @@ export function ArchitecturePanel({ workspace, shapesOpen, onCloseShapes, onOpen
     const connectionsRef = useRef<HTMLDetailsElement>(null);
     const select = (id: string | undefined) => { setSelected(id); if (connectionsRef.current) connectionsRef.current.open = false; };
     const [search, setSearch] = useState('');
-    const [library, setLibrary] = useState<AssetLibrary>(project.provider);
-    useEffect(() => { setLibrary(project.provider); setSearch(''); }, [project.provider]);
     const [tool, setTool] = useState<'select' | 'pan'>('select');
     const [snap, setSnap] = useState(true);
     const v = activeVariant(project);
-    const catalog = services.filter(s => s.provider === library && `${s.name} ${s.category}`.toLowerCase().includes(search.toLowerCase()));
+    const selectedService = resolveService(service, project.provider);
+    const catalog = searchServices(search);
+    const extras = searchAssets(search).filter(asset=>!providers.includes(asset.library as typeof providers[number]));
     const addService = (serviceId: string, position?: { x: number; y: number }) => run(() => {
-        if (!providers.includes(library as Provider) || !serviceFor(library as Provider, serviceId)) return;
-        const resource = makeResource(project, serviceId, providers.includes(library as Provider) ? library as Provider : project.provider);
+        const service = resolveService(serviceId, project.provider);
+        if (!service) return;
+        const resource = makeResource(project, service.id, service.provider);
         change(commit(project, draft => {
             activeVariant(draft).resources.push(resource);
             if (position) draft.presentation.positions[resource.id] = position;
@@ -53,19 +56,19 @@ export function ArchitecturePanel({ workspace, shapesOpen, onCloseShapes, onOpen
             <button disabled={!past.length} onClick={undo}>Undo</button><button disabled={!future.length} onClick={redo}>Redo</button>
             <details className="more-tools"><summary aria-label="More diagram tools">•••</summary><div className="more-tools-content"><button onClick={() => change(commit(project, d => { d.presentation.positions = {}; }))}>Auto layout</button>
             <button aria-pressed={snap} onClick={() => setSnap(!snap)}>Snap to grid</button><button onClick={addBoundary}>Add boundary</button><button onClick={addBlankVariant}>New blank variant</button>
-            <div className="connection-builder"><select aria-label="Service to add" value={service} onChange={e => setService(e.target.value)}><option value="">Choose service</option>{services.filter(s => s.provider === library).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select><button disabled={!service} onClick={() => addService(service)}>Add service</button></div>
+            <div className="connection-builder"><select aria-label="Service to add" value={selectedService ? serviceKey(selectedService) : ''} onChange={e => setService(e.target.value)}><option value="">Choose service</option>{services.map(s => <option key={serviceKey(s)} value={serviceKey(s)}>{libraryNames[s.provider]} · {s.name}</option>)}</select><button disabled={!service} onClick={() => addService(service)}>Add service</button></div>
             </div></details>
         </div>
         <div className="editor-body">
-            <aside className="service-palette" aria-label="Service palette" hidden={!shapesOpen}><button className="drawer-close" aria-label="Close shapes" onClick={onCloseShapes}>×</button><h3>Add service</h3><select aria-label="Cloud asset library" value={library} onChange={e => { setLibrary(e.target.value as AssetLibrary); setSearch(''); }}>{assetLibraries.map(id => <option key={id} value={id}>{libraryNames[id]}</option>)}</select>{!providers.includes(library as Provider) && <button onClick={() => onOpenInfrastructure(library)}>Open infrastructure diagram</button>}{inventorySources.filter(source => source.provider === library).map(source => <details key={source.provider}><summary>Service inventory source</summary><p className="hint">{source.scope}</p><a href={source.url} target="_blank" rel="noreferrer">Official source · {source.retrieved}</a></details>)}<input aria-label="Search services" placeholder="Search services…" value={search} onChange={e => setSearch(e.target.value)}/><p className="hint">Drag onto the canvas or click to add. Cloud libraries can be combined. {catalog.length} services; catalog additions are unpriced.</p>
-                {categories.map(category => {
-                    const items = catalog.filter(s => s.category === category);
-                    return items.length ? <details key={category} open={category !== 'unsupported' || !!search}><summary>{category === 'unsupported' ? 'Additional services · unpriced' : category}</summary><div className="palette-grid">{items.map(s => <button key={s.id} className="palette-service" aria-label={`Add ${s.name}`} draggable onDragStart={e => { e.dataTransfer.setData('application/x-planner-service', s.id); e.dataTransfer.effectAllowed = 'copy'; }} onClick={() => addService(s.id)}><img src={assetUrl(s.icon)} alt=""/><span>{s.name}</span></button>)}</div></details> : null;
+            <aside className="service-palette" aria-label="Service palette" hidden={!shapesOpen}><button className="drawer-close" aria-label="Close shapes" onClick={onCloseShapes}>×</button><h3>Add service</h3><input type="search" aria-label="Search services" placeholder="Search all clouds: server, ECS, Elasticsearch…" value={search} onChange={e => setSearch(e.target.value)}/><p className="hint">Search by service or purpose across providers. Drag or click to add. Related services may have different capabilities.</p><p className="search-count" role="status">{catalog.length + extras.length} matches across all libraries</p>
+                {assetLibraries.map(library => {
+                    const items = catalog.filter(service => service.provider === library), assets = extras.filter(asset=>asset.library===library);
+                    return items.length || assets.length ? <details className="provider-results" key={library} open><summary>{libraryNames[library]} <span>{items.length+assets.length}</span></summary><div className="palette-grid">{items.map(service => <button key={serviceKey(service)} className="palette-service" aria-label={`Add ${service.name}`} draggable onDragStart={e => { e.dataTransfer.setData('application/x-planner-service', serviceKey(service)); e.dataTransfer.effectAllowed = 'copy'; }} onClick={() => addService(serviceKey(service))}><img src={assetUrl(service.icon)} alt=""/><span>{service.name}<small>{service.category === 'unsupported' ? 'Unpriced' : service.category}</small></span></button>)}{assets.map(asset=><button key={asset.id} className="palette-service" onClick={()=>onOpenInfrastructure(asset.library)} aria-label={`Use ${asset.label} in infrastructure diagram`}><img src={assetUrl(asset.icon)} alt=""/><span>{asset.label}<small>Visual diagram</small></span></button>)}</div></details> : null;
                 })}
-                {!providers.includes(library as Provider) && <div className="palette-grid">{drawingAssets.filter(a => a.library === library && a.label.toLowerCase().includes(search.toLowerCase())).map(asset => <button key={asset.id} className="palette-service" onClick={() => onOpenInfrastructure(library)} aria-label={`Use ${asset.label} in infrastructure diagram`}><img src={assetUrl(asset.icon)} alt=""/>{asset.label}</button>)}</div>}
-                {!catalog.length && providers.includes(library as Provider) && <p role="status">No matching services.</p>}
+                {!catalog.length&&!extras.length&&<p>No matching services. Try a generic term such as server, database or storage.</p>}
+                <details className="inventory-sources"><summary>Catalog sources</summary>{inventorySources.map(source=><p key={source.provider}><a href={source.url} target="_blank" rel="noreferrer">{libraryNames[source.provider as typeof providers[number]]} · {source.retrieved}</a></p>)}</details>
             </aside>
-            <div className="editor-canvas"><Diagram project={project} onChange={change} onSelect={select} selectedId={selected} onError={reportError} tool={tool} snap={snap} onAddService={addService}/><div className="canvas-status"><span>{v.resources.length} services · {v.connections.length} connections</span><span>Drag between node handles to connect</span></div></div>
+            <div className="editor-canvas"><Diagram active={active} project={project} onChange={change} onSelect={select} selectedId={selected} onError={reportError} tool={tool} snap={snap} onAddService={addService}/><div className="canvas-status"><span>{v.resources.length} services · {v.connections.length} connections</span><span>Drag between node handles to connect</span></div></div>
             <aside className="properties-panel" aria-label="Selection properties" hidden={!selected}><button className="drawer-close" aria-label="Close properties" onClick={() => setSelected(undefined)}>×</button><h3>Properties</h3><Inspector project={project} selectedId={selected} onChange={p => run(() => change(p))} onSelect={select}/></aside>
         </div>
         <details className="connections" ref={connectionsRef}><summary>Resources & connections · {v.resources.length} services</summary><div className="resource-list">{v.resources.map(r => <button key={r.id} className={selected === r.id ? 'selected' : ''} onClick={() => select(r.id)}>{r.name}</button>)}{v.boundaries.map(b => <button key={b.id} onClick={() => select(b.id)}>{b.name}</button>)}</div>

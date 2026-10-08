@@ -177,3 +177,41 @@ See [project modes and file exchange](project-modes-and-files.md) for format cov
 - Security headers/CSP, bounded requests/uploads/storage, query/API timeouts, security audit events and retention.
 - Catalog read caching/coalescing and duplicate-upload write avoidance.
 - See [security review](../security/review-2026-10-09.md) for current limits, residual risks and validation scope.
+
+## Appearance
+
+Choose System theme, Light mode or Dark mode from the workspace header or the login screen. System is the default and tracks OS appearance changes live. The preference is saved on the device, shared across tabs, and remains usable if browser storage is blocked. Dark mode covers forms, navigation, floating panels, cost tables, diagram canvases, service nodes, boundaries, controls and sequence diagrams. Appearance is separate from project data; downloaded diagrams and reports retain their existing palette. The shared UI supplies the same setting to desktop builds when rebuilt.
+
+## Registration checks and local AI authentication
+
+Registration validates email syntax, known disposable-email domains (including their subdomains), names, and passwords before sending a request. Passwords require 12–128 characters; a small common-password blocklist and repeated-character check encourage unique passphrases without mandatory character combinations. Errors appear next to accessible inputs and focus the first invalid field. Existing users can still sign in with their original credentials, including addresses now classified as disposable.
+
+The disposable-domain snapshot contains 9,221 entries and is bundled for offline browser checks. These additional checks are frontend-only; existing server format/length checks remain. The [snapshot provenance and license](../../packages/ui/src/features/auth/data/README.md) describe its limitations and refresh process.
+
+Local AI models do not require an API key. Settings label it optional; blank or whitespace-only keys omit the Authorization header. Authenticated local servers can still receive an explicitly supplied key. Hosted providers continue to require their keys. Keys remain in memory.
+
+Backend errors preserve HTTP status and structured field messages, distinguish connection/timeout failures, handle non-JSON error responses, and respect Retry-After seconds or HTTP dates. Credential submissions are never automatically retried.
+
+## Direct cross-provider catalog search
+
+Search services and assets directly without choosing a provider first. Results are grouped by AWS, Azure, GCP, Oracle, IBM, Kubernetes and generic libraries where applicable. Generic terms such as server, container, database, storage and queue match related services; ECS and Docker also find container alternatives across clouds. Elasticsearch finds Elasticsearch/OpenSearch services. Related results can differ in capabilities and pricing support.
+
+Search uses a bundled local keyword index; no Elasticsearch server or new infrastructure is required. Adding or dragging a service retains its provider, supporting mixed-cloud architectures. Duplicate catalog display entries are suppressed without changing canonical resources.
+
+New projects offer two clearly spaced choices for cost planning or a simple diagram. The dialog supports narrow screens, keyboard navigation and light/dark appearance.
+
+## Third-party tools
+
+Infrastructure diagrams include 64 searchable tools covering databases, CI/CD, source control, infrastructure automation, observability, identity, networking and data/AI. Examples include MongoDB, GitHub, GitHub Actions and Jenkins. Generic keywords such as CI and monitoring discover related tools. Assets use original labeled badges and are visual-only, without estimated costs. See the [complete list](third-party-assets.md).
+
+## Workspace logout
+
+The workspace header includes a visible Log out button. It flushes pending project/drawing saves before ending the server session and returning to sign-in. While signing out, the button prevents repeated submissions. A failed save or logout keeps the workspace open and displays a retryable error. The existing Projects-panel Sign out action remains available.
+
+## Project dashboard
+
+A dedicated Dashboard lists device projects and account snapshots with name search, provider/mode details and clear open actions. Create named projects with a cloud provider and cost/simple mode. Account failures can be retried while device projects remain accessible. Project settings provide account saves and advanced management. Padding, responsive header rows, SVG dropdown chevrons and disclosure arrows are consistent across shared screens. See [dashboard behavior](project-dashboard.md).
+
+## Consistent menus and confirmations
+
+Dialogs, drawers, inspectors and menus share a spacing scale, control heights, opaque theme surfaces and responsive bounds. Delete, restore and import confirmations use an accessible application dialog with Cancel focused by default. A [DevTools surface review](ui-consistency.md) covers desktop/mobile/dark appearance, all diagram types, every AI provider and authentication forms.
